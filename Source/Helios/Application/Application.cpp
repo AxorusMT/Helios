@@ -1,13 +1,8 @@
-#include "Helios/Helios.h"
-
+#include "Helios/Application/Application.h"
 #include <raylib.h>
-#include <cstdint>
 
-void helios::Application::run() {
-    constexpr uint32_t width = 1280;
-    constexpr uint32_t height = 720;
-    
-    InitWindow(width, height, "Helios Application");
+bool helios::Application::run() {
+    InitWindow(config.width, config.height, config.title.c_str());
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
@@ -22,4 +17,5 @@ void helios::Application::run() {
 
     CloseWindow();
 
+    return true;
 }

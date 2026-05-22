@@ -22,7 +22,10 @@ FetchContent_MakeAvailable(raylib)
 # ---- Engine library ----
 
 add_library(Helios STATIC
-    Source/Helios/Helios.cpp
+    Source/Helios/Application/Application.cpp
+    Include/Helios/Core.h
+    Include/Helios/Application/Application.h
+    Include/Helios/Application/ApplicationConfig.h
 )
 
 target_include_directories(Helios

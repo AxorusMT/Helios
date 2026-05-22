@@ -23,9 +23,16 @@ FetchContent_MakeAvailable(raylib)
 
 add_library(Helios STATIC
     Source/Helios/Application/Application.cpp
+    Source/Helios/Layer/LayerStack.cpp
     Include/Helios/Core.h
     Include/Helios/Application/Application.h
     Include/Helios/Application/ApplicationConfig.h
+    Include/Helios/Layer/ILayer.h
+    Include/Helios/Layer/LayerStack.h
+    Include/Helios/Layer/TestLayerA.h
+    Source/Helios/Layer/TestLayerA.cpp
+    Include/Helios/Layer/TestLayerB.h
+    Source/Helios/Layer/TestLayerB.cpp
 )
 
 target_include_directories(Helios

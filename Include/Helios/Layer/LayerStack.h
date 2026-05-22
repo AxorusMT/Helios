@@ -13,6 +13,7 @@ namespace helios::layer {
             auto layer = std::make_unique<T>(std::forward<Args>(args)...);
             T& ref = *layer;
 
+            layer->setLayerStack(this);
             layer->onAttach();
             this->layers.push_back(std::move(layer));
 
@@ -21,6 +22,7 @@ namespace helios::layer {
 
 
         void popLayer();
+        void removeLayer(ILayer& layer);
         void update(float dt);
         void draw();
 

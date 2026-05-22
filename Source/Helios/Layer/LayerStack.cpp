@@ -4,17 +4,33 @@ void helios::layer::LayerStack::popLayer() {
     if (layers.empty()) return;
 
     layers.back()->onDetach();
+    layers.back()->setLayerStack(nullptr);
     layers.pop_back();
 }
 
+void helios::layer::LayerStack::removeLayer(ILayer& layer) {
+    for (auto it = layers.begin(); it != layers.end(); ++it) {
+        if (it->get() != &layer) continue;
+
+        (*it)->onDetach();
+        (*it)->setLayerStack(nullptr);
+        layers.erase(it);
+        return;
+    }
+}
+
 void helios::layer::LayerStack::update(float dt) {
-    for (auto& layer : layers) {
-        layer->update(dt);
+    const auto layer_count = layers.size();
+
+    for (std::size_t i = 0; i < layer_count && i < layers.size(); ++i) {
+        layers[i]->update(dt);
     }
 }
 
 void helios::layer::LayerStack::draw() {
-    for (auto& layer : layers) {
-        layer->draw();
+    const auto layer_count = layers.size();
+
+    for (std::size_t i = 0; i < layer_count && i < layers.size(); ++i) {
+        layers[i]->draw();
     }
 }

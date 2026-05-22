@@ -2,7 +2,11 @@
 
 #include <Helios/Core.h>
 
+#include <cassert>
+
 namespace helios::layer {
+    class LayerStack;
+
     class ILayer {
     public:
         virtual ~ILayer() = default;
@@ -13,5 +17,19 @@ namespace helios::layer {
         virtual void update(float dt) {}
         virtual void draw() {} 
 
+    protected:
+        LayerStack& getLayerStack() {
+            assert(layer_stack != nullptr);
+            return *layer_stack;
+        }
+
+    private:
+        friend class LayerStack;
+
+        void setLayerStack(LayerStack* stack) {
+            layer_stack = stack;
+        }
+
+        LayerStack* layer_stack = nullptr;
     };
 }   

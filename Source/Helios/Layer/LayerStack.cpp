@@ -1,5 +1,9 @@
 #include "Helios/Layer/LayerStack.h"
 
+helios::layer::LayerStack::~LayerStack() {
+    clear();
+}
+
 void helios::layer::LayerStack::popLayer() {
     if (layers.empty()) return;
 
@@ -16,6 +20,12 @@ void helios::layer::LayerStack::removeLayer(ILayer& layer) {
         (*it)->setLayerStack(nullptr);
         layers.erase(it);
         return;
+    }
+}
+
+void helios::layer::LayerStack::clear() {
+    while (!layers.empty()) {
+        popLayer();
     }
 }
 

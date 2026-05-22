@@ -7,6 +7,8 @@
 namespace helios::layer {
     class LayerStack {
     public:
+        ~LayerStack();
+
         // Function body has to be here as it is a template function
         template <typename T, typename... Args>
         T& pushLayer(Args&&... args) {
@@ -23,6 +25,7 @@ namespace helios::layer {
 
         void popLayer();
         void removeLayer(ILayer& layer);
+        void clear();
         void update(float dt);
         void draw();
 

@@ -19,6 +19,7 @@ bool helios::Application::run() {
         EndDrawing();
     }
 
+    layer_stack.clear();
     CloseWindow();
 
     return true;

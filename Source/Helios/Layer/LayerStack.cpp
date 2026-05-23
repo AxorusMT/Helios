@@ -9,7 +9,7 @@ helios::layer::ILayer& helios::layer::LayerStack::pushLayer(std::unique_ptr<ILay
 
     ILayer& ref = *layer;
 
-    layer->setLayerStack(this);
+    layer->setLayerContext(this, &world);
     layer->onAttach();
     layers.push_back(std::move(layer));
 
@@ -20,7 +20,7 @@ void helios::layer::LayerStack::popLayer() {
     if (layers.empty()) return;
 
     layers.back()->onDetach();
-    layers.back()->setLayerStack(nullptr);
+    layers.back()->setLayerContext(nullptr, nullptr);
     layers.pop_back();
 }
 
@@ -29,7 +29,7 @@ void helios::layer::LayerStack::removeLayer(ILayer& layer) {
         if (it->get() != &layer) continue;
 
         (*it)->onDetach();
-        (*it)->setLayerStack(nullptr);
+        (*it)->setLayerContext(nullptr, nullptr);
         layers.erase(it);
         return;
     }

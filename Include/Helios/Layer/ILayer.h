@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Helios/Core.h>
+#include <Helios/ECS/ECS.h>
 #include <Helios/Event/Events.h>
 
 #include <cassert>
@@ -32,13 +33,20 @@ namespace helios::layer {
             return *layer_stack;
         }
 
+        helios::ecs::World& getWorld() {
+            assert(world != nullptr);
+            return *world;
+        }
+
     private:
         friend class LayerStack;
 
-        void setLayerStack(LayerStack* stack) {
+        void setLayerContext(LayerStack* stack, helios::ecs::World* shared_world) {
             layer_stack = stack;
+            world = shared_world;
         }
 
         LayerStack* layer_stack = nullptr;
+        helios::ecs::World* world = nullptr;
     };
 }   

@@ -19,6 +19,16 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
+FetchContent_Declare(
+    entt
+    GIT_REPOSITORY https://github.com/skypjack/entt
+    GIT_TAG v3.16.0
+)
+
+FetchContent_MakeAvailable(entt)
+
+enable_testing()
+
 # ---- Engine library ----
 
 add_library(Helios STATIC
@@ -27,6 +37,15 @@ add_library(Helios STATIC
     Include/Helios/Core.h
     Include/Helios/Application/Application.h
     Include/Helios/Application/ApplicationConfig.h
+    Include/Helios/ECS/ECS.h
+    Include/Helios/ECS/Components/AccelerationComponent.h
+    Include/Helios/ECS/Components/ColorComponent.h
+    Include/Helios/ECS/Components/Components.h
+    Include/Helios/ECS/Components/PositionComponent.h
+    Include/Helios/ECS/Components/RadiusComponent.h
+    Include/Helios/ECS/Components/VelocityComponent.h
+    Include/Helios/ECS/Entity.h
+    Include/Helios/ECS/World.h
     Include/Helios/Layer/ILayer.h
     Include/Helios/Layer/LayerStack.h
     Include/Helios/Layer/TestLayerA.h
@@ -51,6 +70,7 @@ target_include_directories(Helios
         ${CMAKE_SOURCE_DIR}/Include
 )
 
+target_link_libraries(Helios PUBLIC EnTT::EnTT)
 target_link_libraries(Helios PRIVATE raylib)
 
 # ---- Game executable ----
@@ -60,3 +80,13 @@ add_executable(game
 )
 
 target_link_libraries(game PRIVATE Helios)
+
+# ---- Tests ----
+
+add_executable(ecs_smoke_tests
+    Source/Tests/EcsSmokeTest.cpp
+)
+
+target_link_libraries(ecs_smoke_tests PRIVATE Helios)
+
+add_test(NAME ecs_smoke_tests COMMAND ecs_smoke_tests)

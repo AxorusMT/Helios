@@ -3,10 +3,12 @@
 #include "ILayer.h"
 
 #include <Helios/Core.h>
+#include <Helios/ECS/ECS.h>
 
 namespace helios::layer {
     class LayerStack {
     public:
+        explicit LayerStack(helios::ecs::World& world) : world(world) {}
         ~LayerStack();
 
         // Function body has to be here as it is a template function
@@ -15,7 +17,7 @@ namespace helios::layer {
             auto layer = std::make_unique<T>(std::forward<Args>(args)...);
             T& ref = *layer;
 
-            layer->setLayerStack(this);
+            layer->setLayerContext(this, &world);
             layer->onAttach();
             this->layers.push_back(std::move(layer));
 
@@ -65,6 +67,7 @@ namespace helios::layer {
             }
         }
 
+        helios::ecs::World& world;
         std::vector<std::unique_ptr<ILayer>> layers;
     };
 }

@@ -2,7 +2,7 @@
 
 #include "Helios/Core.h"
 
-namespace helios {
+namespace helios::application {
     struct ApplicationConfig {
         std::string title;
         uint32_t width;

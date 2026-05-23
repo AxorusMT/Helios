@@ -1,6 +1,5 @@
 #include "Helios/Application/Application.h"
 #include "Helios/Event/Events.h"
-#include "Helios/Layer/TestLayerA.h"
 #include <raylib.h>
 
 namespace {
@@ -81,11 +80,13 @@ namespace {
     }
 }
 
-bool helios::Application::run() {
+bool helios::application::Application::run() {
     InitWindow(config.width, config.height, config.title.c_str());
     SetTargetFPS(config.target_fps);
 
-    layer_stack.pushLayer<helios::layer::TestLayerA>();
+    if (starting_layer != nullptr) {
+        layer_stack.pushLayer(std::move(starting_layer));
+    }
 
     while (!WindowShouldClose()) {
         dispatchWindowEvents(layer_stack);

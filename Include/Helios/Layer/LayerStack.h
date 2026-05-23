@@ -22,7 +22,7 @@ namespace helios::layer {
             return ref;
         }
 
-
+        ILayer& pushLayer(std::unique_ptr<ILayer> layer);
         void popLayer();
         void removeLayer(ILayer& layer);
         void clear();

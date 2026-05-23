@@ -4,6 +4,18 @@ helios::layer::LayerStack::~LayerStack() {
     clear();
 }
 
+helios::layer::ILayer& helios::layer::LayerStack::pushLayer(std::unique_ptr<ILayer> layer) {
+    assert(layer != nullptr);
+
+    ILayer& ref = *layer;
+
+    layer->setLayerStack(this);
+    layer->onAttach();
+    layers.push_back(std::move(layer));
+
+    return ref;
+}
+
 void helios::layer::LayerStack::popLayer() {
     if (layers.empty()) return;
 

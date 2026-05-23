@@ -1,7 +1,6 @@
 #include <Helios/Layer/TestLayerA.h>
 
-#include <Helios/Event/Key/KeyPressedEvent.h>
-#include <Helios/Event/Key/KeyReleasedEvent.h>
+#include <Helios/Event/Events.h>
 #include <Helios/Layer/LayerStack.h>
 #include <Helios/Layer/TestLayerB.h>
 

@@ -30,6 +30,7 @@ namespace helios::layer {
         void clear();
         void update(float dt);
         void draw();
+        void onKeyHeldEvent(helios::event::KeyHeldEvent& event);
         void onKeyPressedEvent(helios::event::KeyPressedEvent& event);
         void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event);
         void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event);

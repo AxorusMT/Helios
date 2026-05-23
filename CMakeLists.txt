@@ -48,13 +48,10 @@ add_library(Helios STATIC
     Include/Helios/ECS/World.h
     Include/Helios/Layer/ILayer.h
     Include/Helios/Layer/LayerStack.h
-    Include/Helios/Layer/TestLayerA.h
-    Source/Helios/Layer/TestLayerA.cpp
-    Include/Helios/Layer/TestLayerB.h
-    Source/Helios/Layer/TestLayerB.cpp
     Include/Helios/Event/IEvent.h
     Include/Helios/Event/EventType.h
     Include/Helios/Event/Events.h
+    Include/Helios/Event/Key/KeyHeldEvent.h
     Include/Helios/Event/Key/KeyPressedEvent.h
     Include/Helios/Event/Key/KeyReleasedEvent.h
     Include/Helios/Event/Mouse/MouseButtonPressedEvent.h
@@ -77,9 +74,18 @@ target_link_libraries(Helios PRIVATE raylib)
 
 add_executable(game
     Source/Game/main.cpp
+    Source/Game/Layer/TestLayerA.h
+    Source/Game/Layer/TestLayerA.cpp
+    Source/Game/Layer/TestLayerB.h
+    Source/Game/Layer/TestLayerB.cpp
 )
 
-target_link_libraries(game PRIVATE Helios)
+target_include_directories(game
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/Source/Game
+)
+
+target_link_libraries(game PRIVATE Helios raylib)
 
 # ---- Tests ----
 

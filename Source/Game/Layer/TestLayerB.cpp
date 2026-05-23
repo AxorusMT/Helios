@@ -1,18 +1,18 @@
-#include <Helios/Layer/TestLayerB.h>
+#include "Layer/TestLayerB.h"
 
 #include <Helios/Event/Events.h>
 
 #include <raylib.h>
 
-void helios::layer::TestLayerB::onAttach() {
+void game::layer::TestLayerB::onAttach() {
     std::println("Layer B Attached!");
 }
 
-void helios::layer::TestLayerB::onDetach() {
+void game::layer::TestLayerB::onDetach() {
     std::println("Layer B detached");
 }
 
-void helios::layer::TestLayerB::draw() {
+void game::layer::TestLayerB::draw() {
     const int width = GetScreenWidth();
     const int height = GetScreenHeight();
     const float center_x = static_cast<float>(width) * 0.5f;
@@ -40,7 +40,18 @@ void helios::layer::TestLayerB::draw() {
     DrawRectangle(static_cast<int>(center_x + 86.0f), static_cast<int>(center_y + 116.0f), 112, 58, Color{ 255, 222, 89, 255 });
 }
 
-void helios::layer::TestLayerB::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+void game::layer::TestLayerB::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
+    switch (event.getKeyCode()) {
+        case KEY_UP:
+        case KEY_DOWN:
+        case KEY_LEFT:
+        case KEY_RIGHT:
+            event.handled = true;
+            break;
+    }
+}
+
+void game::layer::TestLayerB::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
     switch (event.getKeyCode()) {
         case KEY_UP:
             std::println("^");

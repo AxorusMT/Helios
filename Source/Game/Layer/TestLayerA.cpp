@@ -1,9 +1,9 @@
-#include <Helios/Layer/TestLayerA.h>
+#include "Layer/TestLayerA.h"
 
 #include <Helios/ECS/Components/Components.h>
 #include <Helios/Event/Events.h>
 #include <Helios/Layer/LayerStack.h>
-#include <Helios/Layer/TestLayerB.h>
+#include "Layer/TestLayerB.h"
 
 #include <raylib.h>
 
@@ -25,15 +25,17 @@ namespace {
     };
 }
 
-void helios::layer::TestLayerA::onAttach() {
+void game::layer::TestLayerA::onAttach() {
     std::println("Layer A Attached!");
 }
 
-void helios::layer::TestLayerA::onDetach() {
+void game::layer::TestLayerA::onDetach() {
     std::println("Layer A detached");
 }
 
-void helios::layer::TestLayerA::update(float dt) {
+void game::layer::TestLayerA::update(float dt) {
+    ball_action_timer += dt;
+
     getWorld().each<PositionComponent, VelocityComponent, AccelerationComponent>(
         [dt](PositionComponent& position, VelocityComponent& velocity, const AccelerationComponent& acceleration) {
             velocity.x += acceleration.x * dt;
@@ -125,7 +127,7 @@ void helios::layer::TestLayerA::update(float dt) {
     );
 }
 
-void helios::layer::TestLayerA::draw() {
+void game::layer::TestLayerA::draw() {
     const int width = GetScreenWidth();
     const int height = GetScreenHeight();
 
@@ -173,7 +175,7 @@ void helios::layer::TestLayerA::draw() {
     );
 }
 
-void helios::layer::TestLayerA::spawnRandomBall() {
+void game::layer::TestLayerA::spawnRandomBall() {
     const float radius = static_cast<float>(GetRandomValue(10, 32));
     const float x = static_cast<float>(GetRandomValue(static_cast<int>(radius), GetScreenWidth() - static_cast<int>(radius)));
     const float y = static_cast<float>(GetRandomValue(static_cast<int>(radius), GetScreenHeight() / 2));
@@ -195,7 +197,7 @@ void helios::layer::TestLayerA::spawnRandomBall() {
     );
 }
 
-void helios::layer::TestLayerA::removeBall() {
+void game::layer::TestLayerA::removeBall() {
     helios::ecs::Entity ball_to_remove;
 
     getWorld().each<PositionComponent, ColorComponent, RadiusComponent>(
@@ -211,7 +213,86 @@ void helios::layer::TestLayerA::removeBall() {
     }
 }
 
-void helios::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+void game::layer::TestLayerA::startDraggingBall(float mouse_x, float mouse_y) {
+    dragged_ball = {};
+    drag_offset_x = 0.0f;
+    drag_offset_y = 0.0f;
+
+    float best_distance_squared = 0.0f;
+
+    getWorld().each<PositionComponent, VelocityComponent, RadiusComponent>(
+        [this, mouse_x, mouse_y, &best_distance_squared](
+            helios::ecs::Entity entity,
+            PositionComponent& position,
+            VelocityComponent&,
+            RadiusComponent& radius
+        ) {
+            const float delta_x = mouse_x - position.x;
+            const float delta_y = mouse_y - position.y;
+            const float distance_squared = delta_x * delta_x + delta_y * delta_y;
+            const float radius_squared = radius.value * radius.value;
+
+            if (distance_squared > radius_squared) {
+                return;
+            }
+
+            if (dragged_ball.isValid() && distance_squared >= best_distance_squared) {
+                return;
+            }
+
+            dragged_ball = entity;
+            drag_offset_x = position.x - mouse_x;
+            drag_offset_y = position.y - mouse_y;
+            best_distance_squared = distance_squared;
+        }
+    );
+}
+
+void game::layer::TestLayerA::dragBall(float mouse_x, float mouse_y, float delta_x, float delta_y) {
+    if (!dragged_ball.isValid()) {
+        return;
+    }
+
+    PositionComponent* position = dragged_ball.tryGetComponent<PositionComponent>();
+    VelocityComponent* velocity = dragged_ball.tryGetComponent<VelocityComponent>();
+
+    if (position == nullptr || velocity == nullptr) {
+        stopDraggingBall();
+        return;
+    }
+
+    position->x = mouse_x + drag_offset_x;
+    position->y = mouse_y + drag_offset_y;
+    velocity->x = delta_x * drag_velocity_scale;
+    velocity->y = delta_y * drag_velocity_scale;
+}
+
+void game::layer::TestLayerA::stopDraggingBall() {
+    dragged_ball = {};
+    drag_offset_x = 0.0f;
+    drag_offset_y = 0.0f;
+}
+
+void game::layer::TestLayerA::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
+    if (ball_action_timer < ball_action_interval) {
+        return;
+    }
+
+    switch (event.getKeyCode()) {
+        case KEY_UP:
+            spawnRandomBall();
+            ball_action_timer = 0.0f;
+            event.handled = true;
+            break;
+        case KEY_DOWN:
+            removeBall();
+            ball_action_timer = 0.0f;
+            event.handled = true;
+            break;
+    }
+}
+
+void game::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
     switch (event.getKeyCode()) {
         case KEY_W:
             std::println("w");
@@ -236,10 +317,6 @@ void helios::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent
 
             event.handled = true;
             break;
-        case KEY_UP:
-            spawnRandomBall();
-            event.handled = true;
-            break;
         case KEY_DOWN:
             removeBall();
             event.handled = true;
@@ -247,10 +324,38 @@ void helios::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent
     }
 }
 
-void helios::layer::TestLayerA::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
+void game::layer::TestLayerA::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
     if (event.getKeyCode() != KEY_SPACE || test_layer_b == nullptr) return;
 
     getLayerStack().removeLayer(*test_layer_b);
     test_layer_b = nullptr;
+    event.handled = true;
+}
+
+void game::layer::TestLayerA::onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {
+    if (event.getButton() != MOUSE_BUTTON_LEFT) {
+        return;
+    }
+
+    const Vector2 mouse_position = GetMousePosition();
+    startDraggingBall(mouse_position.x, mouse_position.y);
+    event.handled = dragged_ball.isValid();
+}
+
+void game::layer::TestLayerA::onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {
+    if (event.getButton() != MOUSE_BUTTON_LEFT || !dragged_ball.isValid()) {
+        return;
+    }
+
+    stopDraggingBall();
+    event.handled = true;
+}
+
+void game::layer::TestLayerA::onMouseMovedEvent(helios::event::MouseMovedEvent& event) {
+    if (!dragged_ball.isValid()) {
+        return;
+    }
+
+    dragBall(event.getX(), event.getY(), event.getDeltaX(), event.getDeltaY());
     event.handled = true;
 }

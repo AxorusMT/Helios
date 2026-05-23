@@ -14,6 +14,11 @@ namespace {
 
     void dispatchKeyboardEvents(helios::layer::LayerStack& layer_stack) {
         for (int key = KEY_NULL + 1; key <= KEY_KB_MENU; ++key) {
+            if (IsKeyDown(key)) {
+                helios::event::KeyHeldEvent event(key);
+                layer_stack.onKeyHeldEvent(event);
+            }
+
             if (IsKeyPressed(key)) {
                 helios::event::KeyPressedEvent event(key);
                 layer_stack.onKeyPressedEvent(event);

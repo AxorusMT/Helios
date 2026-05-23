@@ -18,6 +18,7 @@ namespace helios::layer {
         virtual void onDetach() {}
         virtual void update(float dt) {}
         virtual void draw() {} 
+        virtual void onKeyHeldEvent(helios::event::KeyHeldEvent& event) {}
         virtual void onKeyPressedEvent(helios::event::KeyPressedEvent& event) {}
         virtual void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {}
         virtual void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {}

@@ -57,6 +57,10 @@ void helios::layer::LayerStack::draw() {
     }
 }
 
+void helios::layer::LayerStack::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
+    dispatchEvent(event, &ILayer::onKeyHeldEvent);
+}
+
 void helios::layer::LayerStack::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
     dispatchEvent(event, &ILayer::onKeyPressedEvent);
 }

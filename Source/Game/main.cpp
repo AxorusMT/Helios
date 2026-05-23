@@ -1,8 +1,8 @@
 #include "Helios/Application/Application.h"
-#include "Helios/Layer/TestLayerA.h"
+#include "Layer/TestLayerA.h"
 
-using namespace helios::layer;
 using namespace helios::application;
+using namespace game::layer;
 
 int main() {
     ApplicationConfig config; 

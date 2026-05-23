@@ -10,6 +10,7 @@ namespace helios::event {
         X(None) \
         X(WindowClosed) \
         X(WindowResized) \
+        X(KeyHeld) \
         X(KeyPressed) \
         X(KeyReleased) \
         X(MouseButtonPressed) \

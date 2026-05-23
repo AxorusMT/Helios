@@ -4,12 +4,13 @@
 
 #include "Helios/Layer/ILayer.h"
 
-namespace helios::layer {
-    class TestLayerB : public ILayer {
+namespace game::layer {
+    class TestLayerB : public helios::layer::ILayer {
     public:
         void onAttach() override;
         void onDetach() override;
         void draw() override;
+        void onKeyHeldEvent(helios::event::KeyHeldEvent& event) override;
         void onKeyPressedEvent(helios::event::KeyPressedEvent& event) override;
     private:
         std::string name = "TestLayerB";

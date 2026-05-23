@@ -45,28 +45,34 @@ void helios::layer::LayerStack::draw() {
     }
 }
 
-void helios::layer::LayerStack::onEvent(helios::event::IEvent& event) {
-    std::vector<ILayer*> dispatch_layers;
-    dispatch_layers.reserve(layers.size());
+void helios::layer::LayerStack::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+    dispatchEvent(event, &ILayer::onKeyPressedEvent);
+}
 
-    for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
-        dispatch_layers.push_back(it->get());
-    }
+void helios::layer::LayerStack::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
+    dispatchEvent(event, &ILayer::onKeyReleasedEvent);
+}
 
-    for (ILayer* layer : dispatch_layers) {
-        bool layer_is_attached = false;
+void helios::layer::LayerStack::onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {
+    dispatchEvent(event, &ILayer::onMouseButtonPressedEvent);
+}
 
-        for (const auto& current_layer : layers) {
-            if (current_layer.get() != layer) continue;
+void helios::layer::LayerStack::onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {
+    dispatchEvent(event, &ILayer::onMouseButtonReleasedEvent);
+}
 
-            layer_is_attached = true;
-            break;
-        }
+void helios::layer::LayerStack::onMouseMovedEvent(helios::event::MouseMovedEvent& event) {
+    dispatchEvent(event, &ILayer::onMouseMovedEvent);
+}
 
-        if (!layer_is_attached) continue;
+void helios::layer::LayerStack::onMouseScrolledEvent(helios::event::MouseScrolledEvent& event) {
+    dispatchEvent(event, &ILayer::onMouseScrolledEvent);
+}
 
-        layer->onEvent(event);
+void helios::layer::LayerStack::onWindowClosedEvent(helios::event::WindowClosedEvent& event) {
+    dispatchEvent(event, &ILayer::onWindowClosedEvent);
+}
 
-        if (event.handled) return;
-    }
+void helios::layer::LayerStack::onWindowResizedEvent(helios::event::WindowResizedEvent& event) {
+    dispatchEvent(event, &ILayer::onWindowResizedEvent);
 }

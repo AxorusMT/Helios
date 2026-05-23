@@ -35,7 +35,14 @@ add_library(Helios STATIC
     Source/Helios/Layer/TestLayerB.cpp
     Include/Helios/Event/IEvent.h
     Include/Helios/Event/EventType.h
-    Include/Helios/Event/KeyEvent.h
+    Include/Helios/Event/Key/KeyPressedEvent.h
+    Include/Helios/Event/Key/KeyReleasedEvent.h
+    Include/Helios/Event/Mouse/MouseButtonPressedEvent.h
+    Include/Helios/Event/Mouse/MouseButtonReleasedEvent.h
+    Include/Helios/Event/Mouse/MouseMovedEvent.h
+    Include/Helios/Event/Mouse/MouseScrolledEvent.h
+    Include/Helios/Event/Window/WindowClosedEvent.h
+    Include/Helios/Event/Window/WindowResizedEvent.h
 )
 
 target_include_directories(Helios

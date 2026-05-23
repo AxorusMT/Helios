@@ -10,7 +10,7 @@ namespace helios::layer {
         void onAttach() override;
         void onDetach() override;
         void draw() override;
-        void onEvent(helios::event::IEvent& event) override;
+        void onKeyPressedEvent(helios::event::KeyPressedEvent& event) override;
     private:
         std::string name = "TestLayerB";
     };

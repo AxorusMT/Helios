@@ -1,6 +1,6 @@
 #include <Helios/Layer/TestLayerB.h>
 
-#include <Helios/Event/KeyEvent.h>
+#include <Helios/Event/Key/KeyPressedEvent.h>
 
 #include <raylib.h>
 
@@ -40,12 +40,8 @@ void helios::layer::TestLayerB::draw() {
     DrawRectangle(static_cast<int>(center_x + 86.0f), static_cast<int>(center_y + 116.0f), 112, 58, Color{ 255, 222, 89, 255 });
 }
 
-void helios::layer::TestLayerB::onEvent(helios::event::IEvent& event) {
-    if (event.getEventType() != helios::event::EventType::KeyPressed) return;
-
-    const auto& key_event = static_cast<const helios::event::KeyPressed&>(event);
-
-    switch (key_event.getKeyCode()) {
+void helios::layer::TestLayerB::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+    switch (event.getKeyCode()) {
         case KEY_UP:
             std::println("^");
             event.handled = true;

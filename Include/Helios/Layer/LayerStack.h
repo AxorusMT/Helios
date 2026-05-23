@@ -28,6 +28,7 @@ namespace helios::layer {
         void clear();
         void update(float dt);
         void draw();
+        void onEvent(helios::event::IEvent& event);
 
     private:
         std::vector<std::unique_ptr<ILayer>> layers;

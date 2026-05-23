@@ -1,5 +1,7 @@
 #include <Helios/Layer/TestLayerB.h>
 
+#include <Helios/Event/KeyEvent.h>
+
 #include <raylib.h>
 
 void helios::layer::TestLayerB::onAttach() {
@@ -8,13 +10,6 @@ void helios::layer::TestLayerB::onAttach() {
 
 void helios::layer::TestLayerB::onDetach() {
     std::println("Layer B detached");
-}
-
-void helios::layer::TestLayerB::update(float dt) {
-    if (IsKeyPressed(KEY_UP)) std::println("^");
-    if (IsKeyPressed(KEY_DOWN)) std::println("v");
-    if (IsKeyPressed(KEY_LEFT)) std::println("<");
-    if (IsKeyPressed(KEY_RIGHT)) std::println(">");
 }
 
 void helios::layer::TestLayerB::draw() {
@@ -43,4 +38,29 @@ void helios::layer::TestLayerB::draw() {
 
     DrawCircleLines(static_cast<int>(center_x - 120.0f), static_cast<int>(center_y + 144.0f), 48.0f, Color{ 255, 222, 89, 255 });
     DrawRectangle(static_cast<int>(center_x + 86.0f), static_cast<int>(center_y + 116.0f), 112, 58, Color{ 255, 222, 89, 255 });
+}
+
+void helios::layer::TestLayerB::onEvent(helios::event::IEvent& event) {
+    if (event.getEventType() != helios::event::EventType::KeyPressed) return;
+
+    const auto& key_event = static_cast<const helios::event::KeyPressed&>(event);
+
+    switch (key_event.getKeyCode()) {
+        case KEY_UP:
+            std::println("^");
+            event.handled = true;
+            break;
+        case KEY_DOWN:
+            std::println("v");
+            event.handled = true;
+            break;
+        case KEY_LEFT:
+            std::println("<");
+            event.handled = true;
+            break;
+        case KEY_RIGHT:
+            std::println(">");
+            event.handled = true;
+            break;
+    }
 }

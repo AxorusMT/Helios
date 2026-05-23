@@ -33,6 +33,9 @@ add_library(Helios STATIC
     Source/Helios/Layer/TestLayerA.cpp
     Include/Helios/Layer/TestLayerB.h
     Source/Helios/Layer/TestLayerB.cpp
+    Include/Helios/Event/IEvent.h
+    Include/Helios/Event/EventType.h
+    Include/Helios/Event/KeyEvent.h
 )
 
 target_include_directories(Helios

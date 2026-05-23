@@ -1,5 +1,6 @@
 #include <Helios/Layer/TestLayerA.h>
 
+#include <Helios/Event/KeyEvent.h>
 #include <Helios/Layer/LayerStack.h>
 #include <Helios/Layer/TestLayerB.h>
 
@@ -11,22 +12,6 @@ void helios::layer::TestLayerA::onAttach() {
 
 void helios::layer::TestLayerA::onDetach() {
     std::println("Layer A detached");
-}
-
-void helios::layer::TestLayerA::update(float dt) {
-    if (IsKeyPressed(KEY_W)) std::println("w");
-    if (IsKeyPressed(KEY_A)) std::println("a");
-    if (IsKeyPressed(KEY_S)) std::println("s");
-    if (IsKeyPressed(KEY_D)) std::println("d");
-
-    if (IsKeyDown(KEY_SPACE) && test_layer_b == nullptr) {
-        test_layer_b = &getLayerStack().pushLayer<TestLayerB>();
-    }
-
-    if (!IsKeyDown(KEY_SPACE) && test_layer_b != nullptr) {
-        getLayerStack().removeLayer(*test_layer_b);
-        test_layer_b = nullptr;
-    }
 }
 
 void helios::layer::TestLayerA::draw() {
@@ -64,4 +49,48 @@ void helios::layer::TestLayerA::draw() {
         Vector2{ static_cast<float>(width - 54), static_cast<float>(height - 64) },
         Color{ 236, 117, 86, 255 }
     );
+}
+
+void helios::layer::TestLayerA::onEvent(helios::event::IEvent& event) {
+    if (event.getEventType() == helios::event::EventType::KeyPressed) {
+        const auto& key_event = static_cast<const helios::event::KeyPressed&>(event);
+
+        switch (key_event.getKeyCode()) {
+            case KEY_W:
+                std::println("w");
+                event.handled = true;
+                break;
+            case KEY_A:
+                std::println("a");
+                event.handled = true;
+                break;
+            case KEY_S:
+                std::println("s");
+                event.handled = true;
+                break;
+            case KEY_D:
+                std::println("d");
+                event.handled = true;
+                break;
+            case KEY_SPACE:
+                if (test_layer_b == nullptr) {
+                    test_layer_b = &getLayerStack().pushLayer<TestLayerB>();
+                }
+
+                event.handled = true;
+                break;
+        }
+
+        return;
+    }
+
+    if (event.getEventType() != helios::event::EventType::KeyReleased) return;
+
+    const auto& key_event = static_cast<const helios::event::KeyReleased&>(event);
+
+    if (key_event.getKeyCode() != KEY_SPACE || test_layer_b == nullptr) return;
+
+    getLayerStack().removeLayer(*test_layer_b);
+    test_layer_b = nullptr;
+    event.handled = true;
 }

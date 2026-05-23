@@ -8,6 +8,7 @@
 #include <print> // TODO: logging
 #include <memory>
 #include <utility>
+#include <string_view>
 
-
+// #define pure_virtual =0
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Helios/Core.h>
+#include <Helios/Event/IEvent.h>
 
 #include <cassert>
 
@@ -16,6 +17,7 @@ namespace helios::layer {
         virtual void onDetach() {}
         virtual void update(float dt) {}
         virtual void draw() {} 
+        virtual void onEvent(helios::event::IEvent& event) {}
 
     protected:
         LayerStack& getLayerStack() {

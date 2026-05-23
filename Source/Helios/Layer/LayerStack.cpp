@@ -44,3 +44,29 @@ void helios::layer::LayerStack::draw() {
         layers[i]->draw();
     }
 }
+
+void helios::layer::LayerStack::onEvent(helios::event::IEvent& event) {
+    std::vector<ILayer*> dispatch_layers;
+    dispatch_layers.reserve(layers.size());
+
+    for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+        dispatch_layers.push_back(it->get());
+    }
+
+    for (ILayer* layer : dispatch_layers) {
+        bool layer_is_attached = false;
+
+        for (const auto& current_layer : layers) {
+            if (current_layer.get() != layer) continue;
+
+            layer_is_attached = true;
+            break;
+        }
+
+        if (!layer_is_attached) continue;
+
+        layer->onEvent(event);
+
+        if (event.handled) return;
+    }
+}

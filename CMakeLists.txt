@@ -90,7 +90,7 @@ target_link_libraries(game PRIVATE Helios raylib)
 # ---- Tests ----
 
 add_executable(ecs_smoke_tests
-    Source/Tests/EcsSmokeTest.cpp
+    Tests/EcsSmokeTest.cpp
 )
 
 target_link_libraries(ecs_smoke_tests PRIVATE Helios)

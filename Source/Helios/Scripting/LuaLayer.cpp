@@ -8,15 +8,9 @@ namespace {
         "on_detach",
         "update",
         "draw",
-        "on_key_held",
-        "on_key_pressed",
-        "on_key_released",
-        "on_mouse_button_pressed",
-        "on_mouse_button_released",
-        "on_mouse_moved",
-        "on_mouse_scrolled",
-        "on_window_closed",
-        "on_window_resized"
+        "on_key_event",
+        "on_mouse_event",
+        "on_window_event"
     };
 }
 
@@ -49,71 +43,35 @@ void helios::scripting::LuaLayer::draw() {
     callCallback("draw");
 }
 
-void helios::scripting::LuaLayer::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
+void helios::scripting::LuaLayer::onKeyEvent(helios::event::KeyEvent& event) {
     sol::table event_table = makeEventTable(event.handled);
-    event_table["key"] = event.getKeyCode();
-    callCallback("on_key_held", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
+    event_table["action"] = std::string(event.getActionName());
     event_table["key"] = event.getKeyCode();
     event_table["repeat"] = event.isRepeat();
-    callCallback("on_key_pressed", event_table);
+    callCallback("on_key_event", event_table);
     copyHandledFlag(event_table, event);
 }
 
-void helios::scripting::LuaLayer::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
+void helios::scripting::LuaLayer::onMouseEvent(helios::event::MouseEvent& event) {
     sol::table event_table = makeEventTable(event.handled);
-    event_table["key"] = event.getKeyCode();
-    callCallback("on_key_released", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
+    event_table["action"] = std::string(event.getActionName());
     event_table["button"] = event.getButton();
-    callCallback("on_mouse_button_pressed", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
-    event_table["button"] = event.getButton();
-    callCallback("on_mouse_button_released", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onMouseMovedEvent(helios::event::MouseMovedEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
     event_table["x"] = event.getX();
     event_table["y"] = event.getY();
     event_table["delta_x"] = event.getDeltaX();
     event_table["delta_y"] = event.getDeltaY();
-    callCallback("on_mouse_moved", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onMouseScrolledEvent(helios::event::MouseScrolledEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
     event_table["offset_x"] = event.getOffsetX();
     event_table["offset_y"] = event.getOffsetY();
-    callCallback("on_mouse_scrolled", event_table);
+    callCallback("on_mouse_event", event_table);
     copyHandledFlag(event_table, event);
 }
 
-void helios::scripting::LuaLayer::onWindowClosedEvent(helios::event::WindowClosedEvent& event) {
+void helios::scripting::LuaLayer::onWindowEvent(helios::event::WindowEvent& event) {
     sol::table event_table = makeEventTable(event.handled);
-    callCallback("on_window_closed", event_table);
-    copyHandledFlag(event_table, event);
-}
-
-void helios::scripting::LuaLayer::onWindowResizedEvent(helios::event::WindowResizedEvent& event) {
-    sol::table event_table = makeEventTable(event.handled);
+    event_table["action"] = std::string(event.getActionName());
     event_table["width"] = event.getWidth();
     event_table["height"] = event.getHeight();
-    callCallback("on_window_resized", event_table);
+    callCallback("on_window_event", event_table);
     copyHandledFlag(event_table, event);
 }
 

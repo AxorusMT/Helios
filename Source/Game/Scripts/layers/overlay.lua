@@ -52,13 +52,18 @@ function OverlayLayer:draw()
     g.rectangle(center_x + 86.0, center_y + 116.0, 112.0, 58.0, color(255, 222, 89, 255))
 end
 
-function OverlayLayer:on_key_held(event)
-    if event.key == key.up or event.key == key.down or event.key == key.left or event.key == key.right then
+function OverlayLayer:on_key_event(event)
+    if event.action == "held"
+        and (event.key == key.up or event.key == key.down or event.key == key.left or event.key == key.right)
+    then
         event.handled = true
+        return
     end
-end
 
-function OverlayLayer:on_key_pressed(event)
+    if event.action ~= "pressed" then
+        return
+    end
+
     if event.key == key.up then
         helios.log.info("^")
         event.handled = true

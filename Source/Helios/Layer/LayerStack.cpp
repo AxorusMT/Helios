@@ -108,38 +108,14 @@ helios::layer::ILayer* helios::layer::LayerStack::findLayer(LayerHandle handle) 
     return nullptr;
 }
 
-void helios::layer::LayerStack::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
-    dispatchEvent(event, &ILayer::onKeyHeldEvent);
+void helios::layer::LayerStack::onKeyEvent(helios::event::KeyEvent& event) {
+    dispatchEvent(event, &ILayer::onKeyEvent);
 }
 
-void helios::layer::LayerStack::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
-    dispatchEvent(event, &ILayer::onKeyPressedEvent);
+void helios::layer::LayerStack::onMouseEvent(helios::event::MouseEvent& event) {
+    dispatchEvent(event, &ILayer::onMouseEvent);
 }
 
-void helios::layer::LayerStack::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
-    dispatchEvent(event, &ILayer::onKeyReleasedEvent);
-}
-
-void helios::layer::LayerStack::onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {
-    dispatchEvent(event, &ILayer::onMouseButtonPressedEvent);
-}
-
-void helios::layer::LayerStack::onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {
-    dispatchEvent(event, &ILayer::onMouseButtonReleasedEvent);
-}
-
-void helios::layer::LayerStack::onMouseMovedEvent(helios::event::MouseMovedEvent& event) {
-    dispatchEvent(event, &ILayer::onMouseMovedEvent);
-}
-
-void helios::layer::LayerStack::onMouseScrolledEvent(helios::event::MouseScrolledEvent& event) {
-    dispatchEvent(event, &ILayer::onMouseScrolledEvent);
-}
-
-void helios::layer::LayerStack::onWindowClosedEvent(helios::event::WindowClosedEvent& event) {
-    dispatchEvent(event, &ILayer::onWindowClosedEvent);
-}
-
-void helios::layer::LayerStack::onWindowResizedEvent(helios::event::WindowResizedEvent& event) {
-    dispatchEvent(event, &ILayer::onWindowResizedEvent);
+void helios::layer::LayerStack::onWindowEvent(helios::event::WindowEvent& event) {
+    dispatchEvent(event, &ILayer::onWindowEvent);
 }

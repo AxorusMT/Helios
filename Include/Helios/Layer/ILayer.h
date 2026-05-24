@@ -19,15 +19,9 @@ namespace helios::layer {
         virtual void onDetach() {}
         virtual void update(float dt) {}
         virtual void draw() {} 
-        virtual void onKeyHeldEvent(helios::event::KeyHeldEvent& event) {}
-        virtual void onKeyPressedEvent(helios::event::KeyPressedEvent& event) {}
-        virtual void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {}
-        virtual void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {}
-        virtual void onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {}
-        virtual void onMouseMovedEvent(helios::event::MouseMovedEvent& event) {}
-        virtual void onMouseScrolledEvent(helios::event::MouseScrolledEvent& event) {}
-        virtual void onWindowClosedEvent(helios::event::WindowClosedEvent& event) {}
-        virtual void onWindowResizedEvent(helios::event::WindowResizedEvent& event) {}
+        virtual void onKeyEvent(helios::event::KeyEvent& event) {}
+        virtual void onMouseEvent(helios::event::MouseEvent& event) {}
+        virtual void onWindowEvent(helios::event::WindowEvent& event) {}
 
         [[nodiscard]] LayerHandle getLayerHandle() const {
             return layer_handle;

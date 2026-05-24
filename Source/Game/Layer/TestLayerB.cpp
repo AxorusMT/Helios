@@ -40,18 +40,24 @@ void game::layer::TestLayerB::draw() {
     DrawRectangle(static_cast<int>(center_x + 86.0f), static_cast<int>(center_y + 116.0f), 112, 58, Color{ 255, 222, 89, 255 });
 }
 
-void game::layer::TestLayerB::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
-    switch (event.getKeyCode()) {
-        case KEY_UP:
-        case KEY_DOWN:
-        case KEY_LEFT:
-        case KEY_RIGHT:
-            event.handled = true;
-            break;
-    }
-}
+void game::layer::TestLayerB::onKeyEvent(helios::event::KeyEvent& event) {
+    if (event.isHeld()) {
+        switch (event.getKeyCode()) {
+            case KEY_UP:
+            case KEY_DOWN:
+            case KEY_LEFT:
+            case KEY_RIGHT:
+                event.handled = true;
+                break;
+        }
 
-void game::layer::TestLayerB::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+        return;
+    }
+
+    if (!event.isPressed()) {
+        return;
+    }
+
     switch (event.getKeyCode()) {
         case KEY_UP:
             std::println("^");

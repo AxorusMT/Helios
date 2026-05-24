@@ -1,8 +1,6 @@
 #include <Helios/ECS/ECS.h>
-#include <Helios/Event/Key/KeyPressedEvent.h>
-#include <Helios/Event/Mouse/MouseButtonPressedEvent.h>
-#include <Helios/Event/Mouse/MouseButtonReleasedEvent.h>
-#include <Helios/Event/Mouse/MouseMovedEvent.h>
+#include <Helios/Event/KeyEvent.h>
+#include <Helios/Event/MouseEvent.h>
 #include <Helios/Layer/LayerStack.h>
 #include <Helios/Scripting/ScriptEngine.h>
 
@@ -76,15 +74,17 @@ int main() {
                 upper_called = false
 
                 helios.layers.push({
-                    on_key_pressed = function(self, event)
+                    on_key_event = function(self, event)
                         lower_called = true
                     end
                 })
 
                 helios.layers.push({
-                    on_key_pressed = function(self, event)
-                        upper_called = true
-                        event.handled = true
+                    on_key_event = function(self, event)
+                        if event.action == "pressed" then
+                            upper_called = true
+                            event.handled = true
+                        end
                     end
                 })
             )",
@@ -92,8 +92,8 @@ int main() {
         )
     );
 
-    helios::event::KeyPressedEvent key_event(123);
-    layer_stack.onKeyPressedEvent(key_event);
+    helios::event::KeyEvent key_event(helios::event::KeyEventAction::Pressed, 123);
+    layer_stack.onKeyEvent(key_event);
     assert(key_event.handled);
     assert(scripts.lua()["upper_called"].get<bool>());
     assert(!scripts.lua()["lower_called"].get<bool>());
@@ -222,14 +222,14 @@ int main() {
         )
     );
 
-    helios::event::MouseButtonPressedEvent mouse_pressed(0);
-    game_script_layer_stack.onMouseButtonPressedEvent(mouse_pressed);
+    helios::event::MouseEvent mouse_pressed = helios::event::MouseEvent::buttonPressed(0);
+    game_script_layer_stack.onMouseEvent(mouse_pressed);
 
-    helios::event::MouseMovedEvent mouse_moved(4.0f, 5.0f, 4.0f, 5.0f);
-    game_script_layer_stack.onMouseMovedEvent(mouse_moved);
+    helios::event::MouseEvent mouse_moved = helios::event::MouseEvent::moved(4.0f, 5.0f, 4.0f, 5.0f);
+    game_script_layer_stack.onMouseEvent(mouse_moved);
 
-    helios::event::MouseButtonReleasedEvent mouse_released(0);
-    game_script_layer_stack.onMouseButtonReleasedEvent(mouse_released);
+    helios::event::MouseEvent mouse_released = helios::event::MouseEvent::buttonReleased(0);
+    game_script_layer_stack.onMouseEvent(mouse_released);
 
     game_script_layer_stack.clear();
 

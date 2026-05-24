@@ -18,15 +18,9 @@ namespace helios::scripting {
         void onDetach() override;
         void update(float dt) override;
         void draw() override;
-        void onKeyHeldEvent(helios::event::KeyHeldEvent& event) override;
-        void onKeyPressedEvent(helios::event::KeyPressedEvent& event) override;
-        void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) override;
-        void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) override;
-        void onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) override;
-        void onMouseMovedEvent(helios::event::MouseMovedEvent& event) override;
-        void onMouseScrolledEvent(helios::event::MouseScrolledEvent& event) override;
-        void onWindowClosedEvent(helios::event::WindowClosedEvent& event) override;
-        void onWindowResizedEvent(helios::event::WindowResizedEvent& event) override;
+        void onKeyEvent(helios::event::KeyEvent& event) override;
+        void onMouseEvent(helios::event::MouseEvent& event) override;
+        void onWindowEvent(helios::event::WindowEvent& event) override;
 
     private:
         template <typename... Args>

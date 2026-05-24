@@ -13,12 +13,8 @@ namespace game::layer {
         void onDetach() override;
         void update(float dt) override;
         void draw() override;
-        void onKeyHeldEvent(helios::event::KeyHeldEvent& event) override;
-        void onKeyPressedEvent(helios::event::KeyPressedEvent& event) override;
-        void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) override;
-        void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) override;
-        void onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) override;
-        void onMouseMovedEvent(helios::event::MouseMovedEvent& event) override;
+        void onKeyEvent(helios::event::KeyEvent& event) override;
+        void onMouseEvent(helios::event::MouseEvent& event) override;
 
     private:
         void spawnRandomBall();

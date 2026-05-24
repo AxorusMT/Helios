@@ -67,27 +67,24 @@ function Entity:remove(component) end
 ---@field a integer
 
 ---@class KeyEvent
+---@field action "held"|"pressed"|"released"
 ---@field key integer
 ---@field repeat? boolean
 ---@field handled boolean
 
----@class MouseButtonEvent
+---@class MouseEvent
+---@field action "button_pressed"|"button_released"|"moved"|"scrolled"
 ---@field button integer
----@field handled boolean
-
----@class MouseMovedEvent
 ---@field x number
 ---@field y number
 ---@field delta_x number
 ---@field delta_y number
----@field handled boolean
-
----@class MouseScrolledEvent
 ---@field offset_x number
 ---@field offset_y number
 ---@field handled boolean
 
----@class WindowResizedEvent
+---@class WindowEvent
+---@field action "closed"|"resized"
 ---@field width integer
 ---@field height integer
 ---@field handled boolean
@@ -98,14 +95,9 @@ function Entity:remove(component) end
 ---@field on_detach? fun(self: LuaLayer)
 ---@field update? fun(self: LuaLayer, dt: number)
 ---@field draw? fun(self: LuaLayer)
----@field on_key_held? fun(self: LuaLayer, event: KeyEvent)
----@field on_key_pressed? fun(self: LuaLayer, event: KeyEvent)
----@field on_key_released? fun(self: LuaLayer, event: KeyEvent)
----@field on_mouse_button_pressed? fun(self: LuaLayer, event: MouseButtonEvent)
----@field on_mouse_button_released? fun(self: LuaLayer, event: MouseButtonEvent)
----@field on_mouse_moved? fun(self: LuaLayer, event: MouseMovedEvent)
----@field on_mouse_scrolled? fun(self: LuaLayer, event: MouseScrolledEvent)
----@field on_window_resized? fun(self: LuaLayer, event: WindowResizedEvent)
+---@field on_key_event? fun(self: LuaLayer, event: KeyEvent)
+---@field on_mouse_event? fun(self: LuaLayer, event: MouseEvent)
+---@field on_window_event? fun(self: LuaLayer, event: WindowEvent)
 
 ---@class Helios
 ---@field layers HeliosLayers

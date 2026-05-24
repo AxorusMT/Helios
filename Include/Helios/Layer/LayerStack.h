@@ -18,6 +18,7 @@ namespace helios::layer {
             auto layer = std::make_unique<T>(std::forward<Args>(args)...);
             T& ref = *layer;
 
+            layer->setLayerHandle(LayerHandle(next_layer_id++));
             layer->setLayerContext(this, &world);
             layer->onAttach();
             this->layers.push_back(std::move(layer));
@@ -33,15 +34,9 @@ namespace helios::layer {
         void clear();
         void update(float dt);
         void draw();
-        void onKeyHeldEvent(helios::event::KeyHeldEvent& event);
-        void onKeyPressedEvent(helios::event::KeyPressedEvent& event);
-        void onKeyReleasedEvent(helios::event::KeyReleasedEvent& event);
-        void onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event);
-        void onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event);
-        void onMouseMovedEvent(helios::event::MouseMovedEvent& event);
-        void onMouseScrolledEvent(helios::event::MouseScrolledEvent& event);
-        void onWindowClosedEvent(helios::event::WindowClosedEvent& event);
-        void onWindowResizedEvent(helios::event::WindowResizedEvent& event);
+        void onKeyEvent(helios::event::KeyEvent& event);
+        void onMouseEvent(helios::event::MouseEvent& event);
+        void onWindowEvent(helios::event::WindowEvent& event);
 
     private:
         [[nodiscard]] ILayer* findLayer(LayerHandle handle) const;

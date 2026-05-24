@@ -179,23 +179,40 @@ function BallsLayer:stop_dragging_ball()
     self.drag_offset_y = 0.0
 end
 
-function BallsLayer:on_key_held(event)
-    if self.ball_action_timer < ball_action_interval then
+function BallsLayer:on_key_event(event)
+    if event.action == "held" then
+        if self.ball_action_timer < ball_action_interval then
+            return
+        end
+
+        if event.key == key.up then
+            self:spawn_random_ball()
+            self.ball_action_timer = 0.0
+            event.handled = true
+        elseif event.key == key.down then
+            self:remove_ball()
+            self.ball_action_timer = 0.0
+            event.handled = true
+        end
+
         return
     end
 
-    if event.key == key.up then
-        self:spawn_random_ball()
-        self.ball_action_timer = 0.0
-        event.handled = true
-    elseif event.key == key.down then
-        self:remove_ball()
-        self.ball_action_timer = 0.0
-        event.handled = true
-    end
-end
+    if event.action == "released" then
+        if event.key ~= key.space or not valid_layer(self.test_layer_b) then
+            return
+        end
 
-function BallsLayer:on_key_pressed(event)
+        helios.layers.remove(self.test_layer_b)
+        self.test_layer_b = nil
+        event.handled = true
+        return
+    end
+
+    if event.action ~= "pressed" then
+        return
+    end
+
     if event.key == key.w then
         helios.log.info("w")
         event.handled = true
@@ -220,37 +237,21 @@ function BallsLayer:on_key_pressed(event)
     end
 end
 
-function BallsLayer:on_key_released(event)
-    if event.key ~= key.space or not valid_layer(self.test_layer_b) then
+function BallsLayer:on_mouse_event(event)
+    if event.action == "button_pressed" and event.button == mouse.left then
+        local position = helios.input.mouse_position()
+        self:start_dragging_ball(position.x, position.y)
+        event.handled = valid_entity(self.dragged_ball)
         return
     end
 
-    helios.layers.remove(self.test_layer_b)
-    self.test_layer_b = nil
-    event.handled = true
-end
-
-function BallsLayer:on_mouse_button_pressed(event)
-    if event.button ~= mouse.left then
+    if event.action == "button_released" and event.button == mouse.left and valid_entity(self.dragged_ball) then
+        self:stop_dragging_ball()
+        event.handled = true
         return
     end
 
-    local position = helios.input.mouse_position()
-    self:start_dragging_ball(position.x, position.y)
-    event.handled = valid_entity(self.dragged_ball)
-end
-
-function BallsLayer:on_mouse_button_released(event)
-    if event.button ~= mouse.left or not valid_entity(self.dragged_ball) then
-        return
-    end
-
-    self:stop_dragging_ball()
-    event.handled = true
-end
-
-function BallsLayer:on_mouse_moved(event)
-    if not valid_entity(self.dragged_ball) then
+    if event.action ~= "moved" or not valid_entity(self.dragged_ball) then
         return
     end
 

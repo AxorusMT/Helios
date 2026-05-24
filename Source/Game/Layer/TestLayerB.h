@@ -10,8 +10,7 @@ namespace game::layer {
         void onAttach() override;
         void onDetach() override;
         void draw() override;
-        void onKeyHeldEvent(helios::event::KeyHeldEvent& event) override;
-        void onKeyPressedEvent(helios::event::KeyPressedEvent& event) override;
+        void onKeyEvent(helios::event::KeyEvent& event) override;
     private:
         std::string name = "TestLayerB";
     };

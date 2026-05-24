@@ -29,25 +29,25 @@ namespace {
             return;
         }
 
-        helios::event::WindowResizedEvent event(GetScreenWidth(), GetScreenHeight());
-        layer_stack.onWindowResizedEvent(event);
+        helios::event::WindowEvent event = helios::event::WindowEvent::resized(GetScreenWidth(), GetScreenHeight());
+        layer_stack.onWindowEvent(event);
     }
 
     void dispatchKeyboardEvents(helios::layer::LayerStack& layer_stack) {
         for (int key = KEY_NULL + 1; key <= KEY_KB_MENU; ++key) {
             if (IsKeyDown(key)) {
-                helios::event::KeyHeldEvent event(key);
-                layer_stack.onKeyHeldEvent(event);
+                helios::event::KeyEvent event(helios::event::KeyEventAction::Held, key);
+                layer_stack.onKeyEvent(event);
             }
 
             if (IsKeyPressed(key)) {
-                helios::event::KeyPressedEvent event(key);
-                layer_stack.onKeyPressedEvent(event);
+                helios::event::KeyEvent event(helios::event::KeyEventAction::Pressed, key);
+                layer_stack.onKeyEvent(event);
             }
 
             if (IsKeyReleased(key)) {
-                helios::event::KeyReleasedEvent event(key);
-                layer_stack.onKeyReleasedEvent(event);
+                helios::event::KeyEvent event(helios::event::KeyEventAction::Released, key);
+                layer_stack.onKeyEvent(event);
             }
         }
     }
@@ -65,13 +65,13 @@ namespace {
 
         for (const int button : mouse_buttons) {
             if (IsMouseButtonPressed(button)) {
-                helios::event::MouseButtonPressedEvent event(button);
-                layer_stack.onMouseButtonPressedEvent(event);
+                helios::event::MouseEvent event = helios::event::MouseEvent::buttonPressed(button);
+                layer_stack.onMouseEvent(event);
             }
 
             if (IsMouseButtonReleased(button)) {
-                helios::event::MouseButtonReleasedEvent event(button);
-                layer_stack.onMouseButtonReleasedEvent(event);
+                helios::event::MouseEvent event = helios::event::MouseEvent::buttonReleased(button);
+                layer_stack.onMouseEvent(event);
             }
         }
     }
@@ -84,8 +84,8 @@ namespace {
         }
 
         const Vector2 position = GetMousePosition();
-        helios::event::MouseMovedEvent event(position.x, position.y, delta.x, delta.y);
-        layer_stack.onMouseMovedEvent(event);
+        helios::event::MouseEvent event = helios::event::MouseEvent::moved(position.x, position.y, delta.x, delta.y);
+        layer_stack.onMouseEvent(event);
     }
 
     void dispatchMouseScrollEvents(helios::layer::LayerStack& layer_stack) {
@@ -95,8 +95,8 @@ namespace {
             return;
         }
 
-        helios::event::MouseScrolledEvent event(wheel_move.x, wheel_move.y);
-        layer_stack.onMouseScrolledEvent(event);
+        helios::event::MouseEvent event = helios::event::MouseEvent::scrolled(wheel_move.x, wheel_move.y);
+        layer_stack.onMouseEvent(event);
     }
 
     void dispatchMouseEvents(helios::layer::LayerStack& layer_stack) {

@@ -273,26 +273,41 @@ void game::layer::TestLayerA::stopDraggingBall() {
     drag_offset_y = 0.0f;
 }
 
-void game::layer::TestLayerA::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {
-    if (ball_action_timer < ball_action_interval) {
+void game::layer::TestLayerA::onKeyEvent(helios::event::KeyEvent& event) {
+    if (event.isHeld()) {
+        if (ball_action_timer < ball_action_interval) {
+            return;
+        }
+
+        switch (event.getKeyCode()) {
+            case KEY_UP:
+                spawnRandomBall();
+                ball_action_timer = 0.0f;
+                event.handled = true;
+                break;
+            case KEY_DOWN:
+                removeBall();
+                ball_action_timer = 0.0f;
+                event.handled = true;
+                break;
+        }
+
         return;
     }
 
-    switch (event.getKeyCode()) {
-        case KEY_UP:
-            spawnRandomBall();
-            ball_action_timer = 0.0f;
-            event.handled = true;
-            break;
-        case KEY_DOWN:
-            removeBall();
-            ball_action_timer = 0.0f;
-            event.handled = true;
-            break;
-    }
-}
+    if (event.isReleased()) {
+        if (event.getKeyCode() != KEY_SPACE || test_layer_b == nullptr) return;
 
-void game::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent& event) {
+        getLayerStack().removeLayer(*test_layer_b);
+        test_layer_b = nullptr;
+        event.handled = true;
+        return;
+    }
+
+    if (!event.isPressed()) {
+        return;
+    }
+
     switch (event.getKeyCode()) {
         case KEY_W:
             std::println("w");
@@ -324,35 +339,21 @@ void game::layer::TestLayerA::onKeyPressedEvent(helios::event::KeyPressedEvent& 
     }
 }
 
-void game::layer::TestLayerA::onKeyReleasedEvent(helios::event::KeyReleasedEvent& event) {
-    if (event.getKeyCode() != KEY_SPACE || test_layer_b == nullptr) return;
-
-    getLayerStack().removeLayer(*test_layer_b);
-    test_layer_b = nullptr;
-    event.handled = true;
-}
-
-void game::layer::TestLayerA::onMouseButtonPressedEvent(helios::event::MouseButtonPressedEvent& event) {
-    if (event.getButton() != MOUSE_BUTTON_LEFT) {
+void game::layer::TestLayerA::onMouseEvent(helios::event::MouseEvent& event) {
+    if (event.isButtonPressed() && event.getButton() == MOUSE_BUTTON_LEFT) {
+        const Vector2 mouse_position = GetMousePosition();
+        startDraggingBall(mouse_position.x, mouse_position.y);
+        event.handled = dragged_ball.isValid();
         return;
     }
 
-    const Vector2 mouse_position = GetMousePosition();
-    startDraggingBall(mouse_position.x, mouse_position.y);
-    event.handled = dragged_ball.isValid();
-}
-
-void game::layer::TestLayerA::onMouseButtonReleasedEvent(helios::event::MouseButtonReleasedEvent& event) {
-    if (event.getButton() != MOUSE_BUTTON_LEFT || !dragged_ball.isValid()) {
+    if (event.isButtonReleased() && event.getButton() == MOUSE_BUTTON_LEFT && dragged_ball.isValid()) {
+        stopDraggingBall();
+        event.handled = true;
         return;
     }
 
-    stopDraggingBall();
-    event.handled = true;
-}
-
-void game::layer::TestLayerA::onMouseMovedEvent(helios::event::MouseMovedEvent& event) {
-    if (!dragged_ball.isValid()) {
+    if (!event.isMoved() || !dragged_ball.isValid()) {
         return;
     }
 

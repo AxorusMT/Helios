@@ -8,15 +8,9 @@ namespace helios::event {
 
     #define HELIOS_ENGINE_EVENT_TYPE_XMACRO_LIST(X) \
         X(None) \
-        X(WindowClosed) \
-        X(WindowResized) \
-        X(KeyHeld) \
-        X(KeyPressed) \
-        X(KeyReleased) \
-        X(MouseButtonPressed) \
-        X(MouseButtonReleased) \
-        X(MouseMoved) \
-        X(MouseScrolled) 
+        X(Window) \
+        X(Key) \
+        X(Mouse)
 
     enum class EventType {
         #define HELIOS_ENGINE_EVENT_TYPE_DECLARE(name) name,

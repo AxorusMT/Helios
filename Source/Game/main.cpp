@@ -1,8 +1,7 @@
 #include "Helios/Application/Application.h"
-#include "Layer/TestLayerA.h"
+#include "Native/BallPhysicsSystem.h"
 
 using namespace helios::application;
-using namespace game::layer;
 
 int main() {
     ApplicationConfig config; 
@@ -10,8 +9,11 @@ int main() {
     config.height = 720;
     config.title = "Helios App";
     config.target_fps = 60;
+    config.script_root = "Scripts";
+    config.startup_script = "main.lua";
+    config.native_system_registrars.push_back(game::native::registerBallPhysicsSystem);
     
-    Application app(config, std::make_unique<TestLayerA>());
+    Application app(config);
     app.run();
 
     return 0;

@@ -9,6 +9,7 @@ helios::layer::ILayer& helios::layer::LayerStack::pushLayer(std::unique_ptr<ILay
 
     ILayer& ref = *layer;
 
+    layer->setLayerHandle(LayerHandle(next_layer_id++));
     layer->setLayerContext(this, &world);
     layer->onAttach();
     layers.push_back(std::move(layer));
@@ -21,6 +22,7 @@ void helios::layer::LayerStack::popLayer() {
 
     layers.back()->onDetach();
     layers.back()->setLayerContext(nullptr, nullptr);
+    layers.back()->setLayerHandle(LayerHandle());
     layers.pop_back();
 }
 
@@ -30,9 +32,30 @@ void helios::layer::LayerStack::removeLayer(ILayer& layer) {
 
         (*it)->onDetach();
         (*it)->setLayerContext(nullptr, nullptr);
+        (*it)->setLayerHandle(LayerHandle());
         layers.erase(it);
         return;
     }
+}
+
+bool helios::layer::LayerStack::removeLayer(LayerHandle handle) {
+    if (!handle.isValid()) return false;
+
+    for (auto it = layers.begin(); it != layers.end(); ++it) {
+        if ((*it)->getLayerHandle() != handle) continue;
+
+        (*it)->onDetach();
+        (*it)->setLayerContext(nullptr, nullptr);
+        (*it)->setLayerHandle(LayerHandle());
+        layers.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
+bool helios::layer::LayerStack::containsLayer(LayerHandle handle) const {
+    return findLayer(handle) != nullptr;
 }
 
 void helios::layer::LayerStack::clear() {
@@ -42,19 +65,47 @@ void helios::layer::LayerStack::clear() {
 }
 
 void helios::layer::LayerStack::update(float dt) {
-    const auto layer_count = layers.size();
+    std::vector<LayerHandle> update_layers;
+    update_layers.reserve(layers.size());
 
-    for (std::size_t i = 0; i < layer_count && i < layers.size(); ++i) {
-        layers[i]->update(dt);
+    for (const auto& layer : layers) {
+        update_layers.push_back(layer->getLayerHandle());
+    }
+
+    for (LayerHandle handle : update_layers) {
+        ILayer* layer = findLayer(handle);
+        if (layer == nullptr) continue;
+
+        layer->update(dt);
     }
 }
 
 void helios::layer::LayerStack::draw() {
-    const auto layer_count = layers.size();
+    std::vector<LayerHandle> draw_layers;
+    draw_layers.reserve(layers.size());
 
-    for (std::size_t i = 0; i < layer_count && i < layers.size(); ++i) {
-        layers[i]->draw();
+    for (const auto& layer : layers) {
+        draw_layers.push_back(layer->getLayerHandle());
     }
+
+    for (LayerHandle handle : draw_layers) {
+        ILayer* layer = findLayer(handle);
+        if (layer == nullptr) continue;
+
+        layer->draw();
+    }
+}
+
+helios::layer::ILayer* helios::layer::LayerStack::findLayer(LayerHandle handle) const {
+    if (!handle.isValid()) return nullptr;
+
+    for (const auto& layer : layers) {
+        if (layer->getLayerHandle() == handle) {
+            return layer.get();
+        }
+    }
+
+    return nullptr;
 }
 
 void helios::layer::LayerStack::onKeyHeldEvent(helios::event::KeyHeldEvent& event) {

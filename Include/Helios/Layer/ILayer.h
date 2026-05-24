@@ -3,6 +3,7 @@
 #include <Helios/Core.h>
 #include <Helios/ECS/ECS.h>
 #include <Helios/Event/Events.h>
+#include <Helios/Layer/LayerHandle.h>
 
 #include <cassert>
 
@@ -28,6 +29,10 @@ namespace helios::layer {
         virtual void onWindowClosedEvent(helios::event::WindowClosedEvent& event) {}
         virtual void onWindowResizedEvent(helios::event::WindowResizedEvent& event) {}
 
+        [[nodiscard]] LayerHandle getLayerHandle() const {
+            return layer_handle;
+        }
+
     protected:
         LayerStack& getLayerStack() {
             assert(layer_stack != nullptr);
@@ -47,7 +52,12 @@ namespace helios::layer {
             world = shared_world;
         }
 
+        void setLayerHandle(LayerHandle handle) {
+            layer_handle = handle;
+        }
+
         LayerStack* layer_stack = nullptr;
         helios::ecs::World* world = nullptr;
+        LayerHandle layer_handle;
     };
 }   

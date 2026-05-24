@@ -1,8 +1,29 @@
 #include "Helios/Application/Application.h"
 #include "Helios/Event/Events.h"
+#include "Helios/Scripting/ScriptEngine.h"
+
 #include <raylib.h>
 
+#include <filesystem>
+
 namespace {
+    std::filesystem::path resolveScriptRoot(const std::string& script_root) {
+        std::filesystem::path configured_root(script_root);
+
+        if (configured_root.is_absolute() || std::filesystem::exists(configured_root)) {
+            return configured_root;
+        }
+
+        std::filesystem::path application_root(GetApplicationDirectory());
+        std::filesystem::path executable_relative_root = application_root / configured_root;
+
+        if (std::filesystem::exists(executable_relative_root)) {
+            return executable_relative_root;
+        }
+
+        return configured_root;
+    }
+
     void dispatchWindowEvents(helios::layer::LayerStack& layer_stack) {
         if (!IsWindowResized()) {
             return;
@@ -85,12 +106,39 @@ namespace {
     }
 }
 
+helios::application::Application::Application(
+    ApplicationConfig config,
+    std::unique_ptr<helios::layer::ILayer> starting_layer
+) : config(std::move(config)), starting_layer(std::move(starting_layer)), layer_stack(world) {}
+
+helios::application::Application::~Application() {
+    layer_stack.clear();
+    script_engine.reset();
+}
+
 bool helios::application::Application::run() {
     InitWindow(config.width, config.height, config.title.c_str());
     SetTargetFPS(config.target_fps);
 
     if (starting_layer != nullptr) {
         layer_stack.pushLayer(std::move(starting_layer));
+    }
+
+    if (!config.startup_script.empty()) {
+        script_engine = std::make_unique<helios::scripting::ScriptEngine>(world, layer_stack);
+
+        for (const auto& registrar : config.native_system_registrars) {
+            if (registrar) {
+                registrar(*script_engine);
+            }
+        }
+
+        if (!script_engine->loadStartupScript(resolveScriptRoot(config.script_root), config.startup_script)) {
+            layer_stack.clear();
+            script_engine.reset();
+            CloseWindow();
+            return false;
+        }
     }
 
     while (!WindowShouldClose()) {
@@ -108,6 +156,7 @@ bool helios::application::Application::run() {
     }
 
     layer_stack.clear();
+    script_engine.reset();
     CloseWindow();
 
     return true;

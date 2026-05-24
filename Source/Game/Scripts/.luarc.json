@@ -1,0 +1,12 @@
+{
+  "runtime.version": "Lua 5.4",
+  "workspace.library": [
+    "types"
+  ],
+  "diagnostics.globals": [
+    "helios"
+  ],
+  "diagnostics.disable": [
+    "lowercase-global"
+  ]
+}

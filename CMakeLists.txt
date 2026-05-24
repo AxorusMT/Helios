@@ -27,6 +27,47 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(entt)
 
+FetchContent_Declare(
+    lua
+    GIT_REPOSITORY https://github.com/lua/lua.git
+    GIT_TAG v5.4.8
+)
+
+FetchContent_MakeAvailable(lua)
+
+file(GLOB LUA_SOURCES CONFIGURE_DEPENDS
+    ${lua_SOURCE_DIR}/*.c
+)
+
+list(FILTER LUA_SOURCES EXCLUDE REGEX ".*/lua\\.c$")
+list(FILTER LUA_SOURCES EXCLUDE REGEX ".*/luac\\.c$")
+list(FILTER LUA_SOURCES EXCLUDE REGEX ".*/ltests\\.c$")
+list(FILTER LUA_SOURCES EXCLUDE REGEX ".*/onelua\\.c$")
+
+add_library(lua_static STATIC ${LUA_SOURCES})
+add_library(Lua::Lua ALIAS lua_static)
+
+target_include_directories(lua_static
+    PUBLIC
+        ${lua_SOURCE_DIR}
+)
+
+target_compile_definitions(lua_static
+    PRIVATE
+        $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+)
+
+FetchContent_Declare(
+    sol2
+    GIT_REPOSITORY https://github.com/ThePhD/sol2.git
+    GIT_TAG v3.3.0
+)
+
+set(SOL2_TESTS OFF CACHE BOOL "" FORCE)
+set(SOL2_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(sol2)
+
 enable_testing()
 
 # ---- Engine library ----
@@ -34,6 +75,8 @@ enable_testing()
 add_library(Helios STATIC
     Source/Helios/Application/Application.cpp
     Source/Helios/Layer/LayerStack.cpp
+    Source/Helios/Scripting/LuaLayer.cpp
+    Source/Helios/Scripting/ScriptEngine.cpp
     Include/Helios/Core.h
     Include/Helios/Application/Application.h
     Include/Helios/Application/ApplicationConfig.h
@@ -47,7 +90,10 @@ add_library(Helios STATIC
     Include/Helios/ECS/Entity.h
     Include/Helios/ECS/World.h
     Include/Helios/Layer/ILayer.h
+    Include/Helios/Layer/LayerHandle.h
     Include/Helios/Layer/LayerStack.h
+    Include/Helios/Scripting/LuaLayer.h
+    Include/Helios/Scripting/ScriptEngine.h
     Include/Helios/Event/IEvent.h
     Include/Helios/Event/EventType.h
     Include/Helios/Event/Events.h
@@ -65,19 +111,18 @@ add_library(Helios STATIC
 target_include_directories(Helios
     PUBLIC
         ${CMAKE_SOURCE_DIR}/Include
+        ${sol2_SOURCE_DIR}/include
 )
 
-target_link_libraries(Helios PUBLIC EnTT::EnTT)
+target_link_libraries(Helios PUBLIC EnTT::EnTT Lua::Lua)
 target_link_libraries(Helios PRIVATE raylib)
 
 # ---- Game executable ----
 
 add_executable(game
     Source/Game/main.cpp
-    Source/Game/Layer/TestLayerA.h
-    Source/Game/Layer/TestLayerA.cpp
-    Source/Game/Layer/TestLayerB.h
-    Source/Game/Layer/TestLayerB.cpp
+    Source/Game/Native/BallPhysicsSystem.h
+    Source/Game/Native/BallPhysicsSystem.cpp
 )
 
 target_include_directories(game
@@ -86,6 +131,12 @@ target_include_directories(game
 )
 
 target_link_libraries(game PRIVATE Helios raylib)
+
+add_custom_command(TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Source/Game/Scripts
+        $<TARGET_FILE_DIR:game>/Scripts
+)
 
 # ---- Tests ----
 
@@ -96,3 +147,23 @@ add_executable(ecs_smoke_tests
 target_link_libraries(ecs_smoke_tests PRIVATE Helios)
 
 add_test(NAME ecs_smoke_tests COMMAND ecs_smoke_tests)
+
+add_executable(lua_smoke_tests
+    Tests/LuaSmokeTest.cpp
+    Source/Game/Native/BallPhysicsSystem.h
+    Source/Game/Native/BallPhysicsSystem.cpp
+)
+
+target_include_directories(lua_smoke_tests
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/Source/Game
+)
+
+target_link_libraries(lua_smoke_tests PRIVATE Helios raylib)
+
+target_compile_definitions(lua_smoke_tests
+    PRIVATE
+        HELIOS_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+add_test(NAME lua_smoke_tests COMMAND lua_smoke_tests)

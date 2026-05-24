@@ -6,11 +6,15 @@
 #include "Helios/Layer/LayerStack.h"
 #include "Helios/Layer/ILayer.h"
 
+namespace helios::scripting {
+    class ScriptEngine;
+}
+
 namespace helios::application {
     class Application {
     public:
-        Application(ApplicationConfig config, std::unique_ptr<helios::layer::ILayer> starting_layer)
-            : config(std::move(config)), starting_layer(std::move(starting_layer)), layer_stack(world) {}
+        explicit Application(ApplicationConfig config, std::unique_ptr<helios::layer::ILayer> starting_layer = nullptr);
+        ~Application();
 
         // todo: error codes
         bool run();
@@ -20,5 +24,6 @@ namespace helios::application {
         std::unique_ptr<helios::layer::ILayer> starting_layer;
         helios::ecs::World world;
         helios::layer::LayerStack layer_stack;
+        std::unique_ptr<helios::scripting::ScriptEngine> script_engine;
     };
 }

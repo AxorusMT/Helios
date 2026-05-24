@@ -4,6 +4,7 @@
 
 #include <Helios/Core.h>
 #include <Helios/ECS/ECS.h>
+#include <Helios/Layer/LayerHandle.h>
 
 namespace helios::layer {
     class LayerStack {
@@ -27,6 +28,8 @@ namespace helios::layer {
         ILayer& pushLayer(std::unique_ptr<ILayer> layer);
         void popLayer();
         void removeLayer(ILayer& layer);
+        bool removeLayer(LayerHandle handle);
+        [[nodiscard]] bool containsLayer(LayerHandle handle) const;
         void clear();
         void update(float dt);
         void draw();
@@ -41,26 +44,20 @@ namespace helios::layer {
         void onWindowResizedEvent(helios::event::WindowResizedEvent& event);
 
     private:
+        [[nodiscard]] ILayer* findLayer(LayerHandle handle) const;
+
         template <typename TEvent, typename TCallback>
         void dispatchEvent(TEvent& event, TCallback callback) {
-            std::vector<ILayer*> dispatch_layers;
+            std::vector<LayerHandle> dispatch_layers;
             dispatch_layers.reserve(layers.size());
 
             for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
-                dispatch_layers.push_back(it->get());
+                dispatch_layers.push_back((*it)->getLayerHandle());
             }
 
-            for (ILayer* layer : dispatch_layers) {
-                bool layer_is_attached = false;
-
-                for (const auto& current_layer : layers) {
-                    if (current_layer.get() != layer) continue;
-
-                    layer_is_attached = true;
-                    break;
-                }
-
-                if (!layer_is_attached) continue;
+            for (LayerHandle handle : dispatch_layers) {
+                ILayer* layer = findLayer(handle);
+                if (layer == nullptr) continue;
 
                 (layer->*callback)(event);
 
@@ -70,5 +67,6 @@ namespace helios::layer {
 
         helios::ecs::World& world;
         std::vector<std::unique_ptr<ILayer>> layers;
+        uint64_t next_layer_id = 1;
     };
 }

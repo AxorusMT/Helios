@@ -28,6 +28,18 @@ int main() {
     assert(
         scripts.runString(
             R"(
+                key_constants_check = {
+                    o = type(helios.key.o) == "number"
+                }
+            )",
+            "key_constants_smoke"
+        )
+    );
+    assert(tableBool(scripts.lua()["key_constants_check"], "o"));
+
+    assert(
+        scripts.runString(
+            R"(
                 events = {}
 
                 handle = helios.layers.push({

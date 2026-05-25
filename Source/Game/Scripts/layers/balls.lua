@@ -1,12 +1,14 @@
 local OverlayLayer = require("layers.overlay")
 
 local BallsLayer = {
-    name = "TestLayerA",
+    name = "LuaBallsLayer",
     test_layer_b = nil,
     dragged_ball = nil,
     drag_offset_x = 0.0,
     drag_offset_y = 0.0,
-    ball_action_timer = 0.0
+    ball_action_timer = 0.0,
+
+    draw_outline = false
 }
 
 local g = helios.graphics
@@ -35,11 +37,11 @@ local function valid_layer(handle)
 end
 
 function BallsLayer:on_attach()
-    helios.log.info("Layer A Attached!")
+    helios.log.info("Lua balls layer attached")
 end
 
 function BallsLayer:on_detach()
-    helios.log.info("Layer A detached")
+    helios.log.info("Lua balls layer detached")
 end
 
 function BallsLayer:update(dt)
@@ -71,9 +73,55 @@ function BallsLayer:draw()
     end
 
     local ball_count = 0
+    local draw_outline = self.draw_outline
+    local outline_color = color(0, 0, 0, 255)
+    local velocity_color = color(0, 80, 255, 255)
 
-    helios.world:each({ "position", "color", "radius" }, function(_, position, ball_color, radius)
+    helios.world:each({ "position", "color", "radius" }, function(entity, position, ball_color, radius)
         g.circle(position.x, position.y, radius.value, component_color(ball_color))
+
+        if draw_outline then
+            g.circle_lines(position.x, position.y, radius.value, outline_color)
+
+            local velocity = entity:get("velocity")
+            if velocity ~= nil then
+                local velocity_length = math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
+
+                if velocity_length > 0.0001 then
+                    local direction_x = velocity.x / velocity_length
+                    local direction_y = velocity.y / velocity_length
+                    local end_x = position.x + direction_x * radius.value
+                    local end_y = position.y + direction_y * radius.value
+                    local perpendicular_x = -direction_y
+                    local perpendicular_y = direction_x
+                    local arrow_head_length = math.min(radius.value * 0.45, 12.0)
+                    local arrow_head_width = arrow_head_length * 0.55
+
+                    g.line(
+                        position.x,
+                        position.y,
+                        end_x,
+                        end_y,
+                        velocity_color
+                    )
+                    g.line(
+                        end_x,
+                        end_y,
+                        end_x - direction_x * arrow_head_length + perpendicular_x * arrow_head_width,
+                        end_y - direction_y * arrow_head_length + perpendicular_y * arrow_head_width,
+                        velocity_color
+                    )
+                    g.line(
+                        end_x,
+                        end_y,
+                        end_x - direction_x * arrow_head_length - perpendicular_x * arrow_head_width,
+                        end_y - direction_y * arrow_head_length - perpendicular_y * arrow_head_width,
+                        velocity_color
+                    )
+                end
+            end
+        end
+
         ball_count = ball_count + 1
     end)
 
@@ -91,7 +139,7 @@ function BallsLayer:draw()
 end
 
 function BallsLayer:spawn_random_ball()
-    local radius = helios.random.int(10, 32)
+    local radius = helios.random.int(10, 100)
     local width = helios.window.width()
     local height = helios.window.height()
     local x = helios.random.int(radius, width - radius)
@@ -224,6 +272,10 @@ function BallsLayer:on_key_event(event)
         event.handled = true
     elseif event.key == key.d then
         helios.log.info("d")
+        event.handled = true
+    elseif event.key == key.o then
+        self.draw_outline = not self.draw_outline
+        helios.log.info("outline", self.draw_outline)
         event.handled = true
     elseif event.key == key.space then
         if not valid_layer(self.test_layer_b) then

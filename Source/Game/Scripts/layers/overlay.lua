@@ -1,5 +1,5 @@
 local OverlayLayer = {
-    name = "TestLayerB"
+    name = "LuaOverlayLayer"
 }
 
 local g = helios.graphics
@@ -10,11 +10,12 @@ local function color(r, g_value, b, a)
 end
 
 function OverlayLayer:on_attach()
-    helios.log.info("Layer B Attached!")
+    helios.log.info("Lua overlay layer attached")
 end
 
 function OverlayLayer:on_detach()
-    helios.log.info("Layer B detached")
+    helios.log.info("Lua overlay layer detached")
+    helios.log.info("Hello")
 end
 
 function OverlayLayer:draw()
@@ -23,9 +24,9 @@ function OverlayLayer:draw()
     local center_x = width * 0.5
     local center_y = height * 0.5
 
-    g.rectangle(0, 0, width, height, g.fade(color(18, 24, 48, 255), 0.72))
+    --g.rectangle(0, 0, width, height, g.fade(color(18, 24, 48, 255), 0.72))
 
-    g.circle(center_x - 190.0, center_y - 98.0, 70.0, g.fade(color(255, 80, 140, 255), 0.86))
+   --g.circle(center_x - 190.0, center_y - 98.0, 70.0, g.fade(color(255, 80, 140, 255), 0.86))
     g.triangle(
         center_x + 168.0,
         center_y - 168.0,

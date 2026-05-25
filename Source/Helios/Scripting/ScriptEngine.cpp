@@ -573,6 +573,7 @@ void helios::scripting::ScriptEngine::registerConstants(sol::table& helios) {
     key["a"] = KEY_A;
     key["s"] = KEY_S;
     key["d"] = KEY_D;
+    key["o"] = KEY_O;
     helios["key"] = key;
 
     sol::table mouse = lua_state.create_table();

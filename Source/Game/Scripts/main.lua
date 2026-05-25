@@ -1,3 +1,2 @@
-local BallsLayer = require("layers.balls")
-
-helios.layers.push(BallsLayer)
+local StartLayer = require("layers.start")
+helios.layers.push(StartLayer)

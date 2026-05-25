@@ -9,6 +9,19 @@ local function color(r, g_value, b, a)
     return { r = r, g = g_value, b = b, a = a or 255 }
 end
 
+local keybinds = {
+    "Mouse or A/D: move catcher",
+    "Left click or X: pulse",
+    "P: pause",
+    "R: restart",
+    "O: toggle outlines and velocity lines",
+    "SPACE: show overlay, release to close",
+    "V held: spawn 100 balls",
+    "C held: remove 100 balls",
+    "B: spawn radius 100 ball at cursor",
+    "Arrow keys on overlay: log direction"
+}
+
 function OverlayLayer:on_attach()
     helios.log.info("Lua overlay layer attached")
 end
@@ -37,20 +50,22 @@ function OverlayLayer:draw()
         g.fade(color(115, 232, 255, 255), 0.9)
     )
 
-    local panel_x = center_x - 260.0
-    local panel_y = center_y - 92.0
-    local panel_w = 520.0
-    local panel_h = 184.0
+    local panel_x = center_x - 300.0
+    local panel_y = center_y - 190.0
+    local panel_w = 600.0
+    local panel_h = 380.0
 
     g.rectangle(panel_x, panel_y, panel_w, panel_h, color(246, 248, 255, 242))
     g.rectangle_lines(panel_x, panel_y, panel_w, panel_h, 5.0, color(78, 93, 199, 255))
 
-    g.text(self.name, panel_x + 34.0, panel_y + 28.0, 46, color(45, 54, 134, 255))
-    g.text("Overlay layer: arrow keys log input", panel_x + 36.0, panel_y + 88.0, 22, color(68, 75, 118, 255))
-    g.text("Release SPACE to remove this overlay", panel_x + 36.0, panel_y + 120.0, 22, color(68, 75, 118, 255))
+    g.text("Keybinds", panel_x + 34.0, panel_y + 28.0, 46, color(45, 54, 134, 255))
 
-    g.circle_lines(center_x - 120.0, center_y + 144.0, 48.0, color(255, 222, 89, 255))
-    g.rectangle(center_x + 86.0, center_y + 116.0, 112.0, 58.0, color(255, 222, 89, 255))
+    local text_y = panel_y + 92.0
+    for _, binding in ipairs(keybinds) do
+        g.text(binding, panel_x + 38.0, text_y, 20, color(68, 75, 118, 255))
+        text_y = text_y + 29.0
+    end
+
 end
 
 function OverlayLayer:on_key_event(event)

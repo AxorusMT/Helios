@@ -219,6 +219,9 @@ function helios.window.width() end
 ---@return integer
 function helios.window.height() end
 
+---Request the application to exit after the current event dispatch.
+function helios.window.quit() end
+
 ---@class HeliosInput
 helios.input = {}
 

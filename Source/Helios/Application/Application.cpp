@@ -1,4 +1,5 @@
 #include "Helios/Application/Application.h"
+#include "Helios/Application/ApplicationControl.h"
 #include "Helios/Event/Events.h"
 #include "Helios/Scripting/ScriptEngine.h"
 
@@ -117,6 +118,8 @@ helios::application::Application::~Application() {
 }
 
 bool helios::application::Application::run() {
+    clearQuitRequest();
+
     InitWindow(config.width, config.height, config.title.c_str());
     SetTargetFPS(config.target_fps);
 
@@ -141,10 +144,15 @@ bool helios::application::Application::run() {
         }
     }
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !isQuitRequested()) {
         dispatchWindowEvents(layer_stack);
         dispatchKeyboardEvents(layer_stack);
         dispatchMouseEvents(layer_stack);
+
+        if (isQuitRequested()) {
+            break;
+        }
+
         layer_stack.update(GetFrameTime());
         BeginDrawing();
 

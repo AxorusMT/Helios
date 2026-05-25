@@ -1,5 +1,6 @@
 #include <Helios/Scripting/ScriptEngine.h>
 
+#include <Helios/Application/ApplicationControl.h>
 #include <Helios/Scripting/LuaLayer.h>
 
 #include <raylib.h>
@@ -502,6 +503,9 @@ void helios::scripting::ScriptEngine::registerWindowBindings(sol::table& helios)
     window.set_function("height", []() {
         return GetScreenHeight();
     });
+    window.set_function("quit", []() {
+        helios::application::requestQuit();
+    });
 
     helios["window"] = window;
 }
@@ -571,6 +575,9 @@ void helios::scripting::ScriptEngine::registerConstants(sol::table& helios) {
     key["right"] = KEY_RIGHT;
     key["w"] = KEY_W;
     key["a"] = KEY_A;
+    key["b"] = KEY_B;
+    key["c"] = KEY_C;
+    key["v"] = KEY_V;
     key["s"] = KEY_S;
     key["d"] = KEY_D;
     key["o"] = KEY_O;

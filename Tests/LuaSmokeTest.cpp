@@ -29,13 +29,21 @@ int main() {
         scripts.runString(
             R"(
                 key_constants_check = {
-                    o = type(helios.key.o) == "number"
+                    o = type(helios.key.o) == "number",
+                    b = type(helios.key.b) == "number",
+                    c = type(helios.key.c) == "number",
+                    v = type(helios.key.v) == "number",
+                    quit = type(helios.window.quit) == "function"
                 }
             )",
             "key_constants_smoke"
         )
     );
     assert(tableBool(scripts.lua()["key_constants_check"], "o"));
+    assert(tableBool(scripts.lua()["key_constants_check"], "b"));
+    assert(tableBool(scripts.lua()["key_constants_check"], "c"));
+    assert(tableBool(scripts.lua()["key_constants_check"], "v"));
+    assert(tableBool(scripts.lua()["key_constants_check"], "quit"));
 
     assert(
         scripts.runString(
@@ -182,6 +190,14 @@ int main() {
         / "Scripts";
 
     assert(game_scripts.loadStartupScript(game_script_root, "main.lua"));
+    assert(
+        game_scripts.runString(
+            R"(
+                helios.layers.push(require("layers.balls"))
+            )",
+            "push_balls_layer_for_smoke"
+        )
+    );
 
     assert(
         game_scripts.runString(
@@ -219,6 +235,47 @@ int main() {
     assert(std::abs(tableNumber(physics_check, "x") - 102.0) < 0.001);
     assert(std::abs(tableNumber(physics_check, "y") - 203.5) < 0.001);
     assert(std::abs(tableNumber(physics_check, "velocity_y") - 7.0) < 0.001);
+
+    assert(
+        game_scripts.runString(
+            R"(
+                small_mass_ball = helios.world:create()
+                small_mass_ball:add("position", { x = 500, y = 200 })
+                small_mass_ball:add("velocity", { x = 10, y = 0 })
+                small_mass_ball:add("acceleration", { x = 0, y = 0 })
+                small_mass_ball:add("radius", { value = 10 })
+                small_mass_ball:add("color", { r = 255, g = 255, b = 255, a = 255 })
+
+                large_mass_ball = helios.world:create()
+                large_mass_ball:add("position", { x = 525, y = 200 })
+                large_mass_ball:add("velocity", { x = 0, y = 0 })
+                large_mass_ball:add("acceleration", { x = 0, y = 0 })
+                large_mass_ball:add("radius", { value = 20 })
+                large_mass_ball:add("color", { r = 255, g = 255, b = 255, a = 255 })
+
+                helios.native.run("game.balls.physics", 0.0)
+
+                local small_position = small_mass_ball:get("position")
+                local small_velocity = small_mass_ball:get("velocity")
+                local large_position = large_mass_ball:get("position")
+                local large_velocity = large_mass_ball:get("velocity")
+
+                mass_collision_check = {
+                    small_x = small_position.x,
+                    large_x = large_position.x,
+                    small_velocity_x = small_velocity.x,
+                    large_velocity_x = large_velocity.x
+                }
+            )",
+            "mass_weighted_collision"
+        )
+    );
+
+    sol::table mass_collision_check = game_scripts.lua()["mass_collision_check"];
+    assert(std::abs(tableNumber(mass_collision_check, "small_x") - 496.0) < 0.001);
+    assert(std::abs(tableNumber(mass_collision_check, "large_x") - 526.0) < 0.001);
+    assert(std::abs(tableNumber(mass_collision_check, "small_velocity_x") + 5.6) < 0.001);
+    assert(std::abs(tableNumber(mass_collision_check, "large_velocity_x") - 3.9) < 0.001);
 
     assert(
         game_scripts.runString(

@@ -79,6 +79,7 @@ add_library(Helios STATIC
     Source/Helios/Scripting/ScriptEngine.cpp
     Include/Helios/Core.h
     Include/Helios/Application/Application.h
+    Include/Helios/Application/ApplicationControl.h
     Include/Helios/Application/ApplicationConfig.h
     Include/Helios/ECS/ECS.h
     Include/Helios/ECS/Components/AccelerationComponent.h

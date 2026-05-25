@@ -3,9 +3,6 @@ local OverlayLayer = require("layers.overlay")
 local BallsLayer = {
     name = "LuaBallsLayer",
     test_layer_b = nil,
-    dragged_ball = nil,
-    drag_offset_x = 0.0,
-    drag_offset_y = 0.0,
     ball_action_timer = 0.0,
 
     draw_outline = false
@@ -15,21 +12,16 @@ local g = helios.graphics
 local key = helios.key
 local mouse = helios.mouse
 
-local gravity = 420.0
 local ball_action_interval = 0.035
-local drag_velocity_scale = 18.0
 local ball_physics_system = "game.balls.physics"
+local ball_draw_system = "game.balls.draw"
+local ball_spawn_random_system = "game.balls.spawn_random"
+local ball_spawn_cursor_system = "game.balls.spawn_cursor"
+local ball_remove_system = "game.balls.remove"
+local ball_pulse_system = "game.balls.pulse"
 
 local function color(r, g_value, b, a)
     return { r = r, g = g_value, b = b, a = a or 255 }
-end
-
-local function component_color(component)
-    return { r = component.r, g = component.g, b = component.b, a = component.a }
-end
-
-local function valid_entity(entity)
-    return entity ~= nil and entity:is_valid()
 end
 
 local function valid_layer(handle)
@@ -63,168 +55,18 @@ function BallsLayer:draw()
     )
 
     local skyblue = color(102, 191, 255, 255)
+    local grid_line_color = g.fade(skyblue, 0.25)
+    local grid_row_color = g.fade(skyblue, 0.18)
 
     for x = 0, width, 64 do
-        g.line(x, 0, x, height, g.fade(skyblue, 0.25))
+        g.line(x, 0, x, height, grid_line_color)
     end
 
     for y = 0, height, 64 do
-        g.line(0, y, width, y, g.fade(skyblue, 0.18))
+        g.line(0, y, width, y, grid_row_color)
     end
 
-    local ball_count = 0
-    local draw_outline = self.draw_outline
-    local outline_color = color(0, 0, 0, 255)
-    local velocity_color = color(0, 80, 255, 255)
-
-    helios.world:each({ "position", "color", "radius" }, function(entity, position, ball_color, radius)
-        g.circle(position.x, position.y, radius.value, component_color(ball_color))
-
-        if draw_outline then
-            g.circle_lines(position.x, position.y, radius.value, outline_color)
-
-            local velocity = entity:get("velocity")
-            if velocity ~= nil then
-                local velocity_length = math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y)
-
-                if velocity_length > 0.0001 then
-                    local direction_x = velocity.x / velocity_length
-                    local direction_y = velocity.y / velocity_length
-                    local end_x = position.x + direction_x * radius.value
-                    local end_y = position.y + direction_y * radius.value
-                    local perpendicular_x = -direction_y
-                    local perpendicular_y = direction_x
-                    local arrow_head_length = math.min(radius.value * 0.45, 12.0)
-                    local arrow_head_width = arrow_head_length * 0.55
-
-                    g.line(
-                        position.x,
-                        position.y,
-                        end_x,
-                        end_y,
-                        velocity_color
-                    )
-                    g.line(
-                        end_x,
-                        end_y,
-                        end_x - direction_x * arrow_head_length + perpendicular_x * arrow_head_width,
-                        end_y - direction_y * arrow_head_length + perpendicular_y * arrow_head_width,
-                        velocity_color
-                    )
-                    g.line(
-                        end_x,
-                        end_y,
-                        end_x - direction_x * arrow_head_length - perpendicular_x * arrow_head_width,
-                        end_y - direction_y * arrow_head_length - perpendicular_y * arrow_head_width,
-                        velocity_color
-                    )
-                end
-            end
-        end
-
-        ball_count = ball_count + 1
-    end)
-
-    local ball_count_text = string.format("Balls: %d", ball_count)
-    local font_size = 26
-    local text_width = g.measure_text(ball_count_text, font_size)
-
-    g.text(
-        ball_count_text,
-        (width - text_width) / 2,
-        24,
-        font_size,
-        color(35, 82, 100, 255)
-    )
-end
-
-function BallsLayer:spawn_random_ball()
-    local radius = helios.random.int(10, 100)
-    local width = helios.window.width()
-    local height = helios.window.height()
-    local x = helios.random.int(radius, width - radius)
-    local y = helios.random.int(radius, math.floor(height / 2))
-    local velocity_x = helios.random.int(-280, 280)
-    local velocity_y = helios.random.int(-260, 40)
-
-    local ball = helios.world:create()
-    ball:add("position", { x = x, y = y })
-    ball:add("radius", { value = radius })
-    ball:add("velocity", { x = velocity_x, y = velocity_y })
-    ball:add("acceleration", { x = 0.0, y = gravity })
-    ball:add("color", {
-        r = helios.random.int(64, 255),
-        g = helios.random.int(64, 255),
-        b = helios.random.int(64, 255),
-        a = 255
-    })
-end
-
-function BallsLayer:remove_ball()
-    local ball_to_remove = nil
-
-    helios.world:each({ "position", "color", "radius" }, function(entity)
-        if not valid_entity(ball_to_remove) then
-            ball_to_remove = entity
-        end
-    end)
-
-    if valid_entity(ball_to_remove) then
-        ball_to_remove:destroy()
-    end
-end
-
-function BallsLayer:start_dragging_ball(mouse_x, mouse_y)
-    self.dragged_ball = nil
-    self.drag_offset_x = 0.0
-    self.drag_offset_y = 0.0
-
-    local best_distance_squared = 0.0
-
-    helios.world:each({ "position", "velocity", "radius" }, function(entity, position, _, radius)
-        local delta_x = mouse_x - position.x
-        local delta_y = mouse_y - position.y
-        local distance_squared = delta_x * delta_x + delta_y * delta_y
-        local radius_squared = radius.value * radius.value
-
-        if distance_squared > radius_squared then
-            return
-        end
-
-        if valid_entity(self.dragged_ball) and distance_squared >= best_distance_squared then
-            return
-        end
-
-        self.dragged_ball = entity
-        self.drag_offset_x = position.x - mouse_x
-        self.drag_offset_y = position.y - mouse_y
-        best_distance_squared = distance_squared
-    end)
-end
-
-function BallsLayer:drag_ball(mouse_x, mouse_y, delta_x, delta_y)
-    if not valid_entity(self.dragged_ball) then
-        return
-    end
-
-    local position = self.dragged_ball:get("position")
-    local velocity = self.dragged_ball:get("velocity")
-
-    if position == nil or velocity == nil then
-        self:stop_dragging_ball()
-        return
-    end
-
-    position.x = mouse_x + self.drag_offset_x
-    position.y = mouse_y + self.drag_offset_y
-    velocity.x = delta_x * drag_velocity_scale
-    velocity.y = delta_y * drag_velocity_scale
-end
-
-function BallsLayer:stop_dragging_ball()
-    self.dragged_ball = nil
-    self.drag_offset_x = 0.0
-    self.drag_offset_y = 0.0
+    helios.native.run(ball_draw_system, self.draw_outline)
 end
 
 function BallsLayer:on_key_event(event)
@@ -234,11 +76,19 @@ function BallsLayer:on_key_event(event)
         end
 
         if event.key == key.up then
-            self:spawn_random_ball()
+            helios.native.run(ball_spawn_random_system, 1)
             self.ball_action_timer = 0.0
             event.handled = true
         elseif event.key == key.down then
-            self:remove_ball()
+            helios.native.run(ball_remove_system, 1)
+            self.ball_action_timer = 0.0
+            event.handled = true
+        elseif event.key == key.v then
+            helios.native.run(ball_spawn_random_system, 100)
+            self.ball_action_timer = 0.0
+            event.handled = true
+        elseif event.key == key.c then
+            helios.native.run(ball_remove_system, 100)
             self.ball_action_timer = 0.0
             event.handled = true
         end
@@ -261,21 +111,18 @@ function BallsLayer:on_key_event(event)
         return
     end
 
-    if event.key == key.w then
-        helios.log.info("w")
+    if event.key == key.b then
+        helios.native.run(ball_spawn_cursor_system, 100.0)
         event.handled = true
-    elseif event.key == key.a then
-        helios.log.info("a")
+    elseif event.key == key.c then
+        helios.native.run(ball_remove_system, 100)
         event.handled = true
-    elseif event.key == key.s then
-        helios.log.info("s")
-        event.handled = true
-    elseif event.key == key.d then
-        helios.log.info("d")
+    elseif event.key == key.v then
+        helios.native.run(ball_spawn_random_system, 100)
         event.handled = true
     elseif event.key == key.o then
         self.draw_outline = not self.draw_outline
-        helios.log.info("outline", self.draw_outline)
+        helios.log.info("outline 67 ", self.draw_outline)
         event.handled = true
     elseif event.key == key.space then
         if not valid_layer(self.test_layer_b) then
@@ -284,31 +131,17 @@ function BallsLayer:on_key_event(event)
 
         event.handled = true
     elseif event.key == key.down then
-        self:remove_ball()
+        helios.native.run(ball_remove_system, 1)
         event.handled = true
     end
 end
 
 function BallsLayer:on_mouse_event(event)
     if event.action == "button_pressed" and event.button == mouse.left then
-        local position = helios.input.mouse_position()
-        self:start_dragging_ball(position.x, position.y)
-        event.handled = valid_entity(self.dragged_ball)
-        return
-    end
-
-    if event.action == "button_released" and event.button == mouse.left and valid_entity(self.dragged_ball) then
-        self:stop_dragging_ball()
+        helios.native.run(ball_pulse_system)
         event.handled = true
         return
     end
-
-    if event.action ~= "moved" or not valid_entity(self.dragged_ball) then
-        return
-    end
-
-    self:drag_ball(event.x, event.y, event.delta_x, event.delta_y)
-    event.handled = true
 end
 
 return BallsLayer
